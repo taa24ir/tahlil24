@@ -218,6 +218,14 @@
             height: 300px;
         }
         
+        .chart-analysis {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-right: 4px solid #6a11cb;
+        }
+        
         @media print {
             body * {
                 visibility: hidden;
@@ -245,8 +253,7 @@
         <div class="instructions">
             <h5>راهنما:</h5>
             <ol>
-                <li>اطلاعات را وارد کرده و با دکمه "ذخیره در GitHub" در فضای ابری ذخیره کنید</li>
-                <li>با استفاده از دکمه "بارگذاری از GitHub" اطلاعات قبلی را بازیابی کنید</li>
+                <li>اطلاعات را وارد کرده و با دکمه "افزودن داده" ثبت کنید</li>
                 <li>از دکمه "ورودی از اکسل" برای وارد کردن داده‌های حجیم استفاده کنید</li>
                 <li>با دکمه "خروجی اکسل" داده‌های خام را برای استفاده‌های بعدی دریافت کنید</li>
                 <li>گزارش گرافیکی، نمودارهای پیشرفت شما را نمایش می‌دهد</li>
@@ -310,7 +317,6 @@
                         </div>
                         
                         <button class="btn btn-primary w-100 mb-2" onclick="addData()">افزودن داده</button>
-                        <button class="btn btn-success w-100 mb-2" onclick="saveToGitHub()">ذخیره در GitHub</button>
                         <button class="btn btn-outline-primary w-100" onclick="loadExcelFile()">ورودی از اکسل</button>
                         <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;">
                     </div>
@@ -327,7 +333,6 @@
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button class="btn btn-primary" onclick="loadFromGitHub()">بارگذاری از GitHub</button>
                             <button class="btn btn-success" onclick="generateReport()">گزارش گرافیکی</button>
                             <button class="btn btn-danger" onclick="exportToExcel()">خروجی اکسل</button>
                             <button class="btn btn-info text-white" onclick="exportToPDF()">خروجی PDF</button>
@@ -335,16 +340,6 @@
                         
                         <div class="student-id-badge d-inline-block my-3">
                             دانشجوی انتخاب شده: <span id="selectedStudent">ST1001</span>
-                        </div>
-                        
-                        <div class="github-info">
-                            <h6>اطلاعات GitHub:</h6>
-                            <p>برای استفاده از قابلیت ذخیره‌سازی در GitHub، نیاز به تنظیمات زیر دارید:</p>
-                            <ol>
-                                <li>یک ریپازیتوری عمومی در GitHub ایجاد کنید</li>
-                                <li>از آدرس raw file برای اتصال استفاده کنید</li>
-                                <li>برای ذخیره‌سازی، از GitHub API با توکن شخصی استفاده کنید</li>
-                            </ol>
                         </div>
                     </div>
                 </div>
@@ -447,105 +442,101 @@
             </div>
         </div>
         
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>هفته</th>
-                        <th>ساعات تخصصی</th>
-                        <th>تست تخصصی</th>
-                        <th>ساعات عمومی</th>
-                        <th>سوال تشریحی</th>
-                        <th>تست مارکدار</th>
-                        <th>رضایت عملکرد</th>
-                        <th>رضایت مشاور</th>
-                    </tr>
-                </thead>
-                <tbody id="reportDataTable">
-                </tbody>
-            </table>
+        <div class="chart-analysis">
+            <h4>تحلیل وضعیت تحصیلی</h4>
+            <p id="studyAnalysisText">در حال تحلیل داده‌ها...</p>
+        </div>
+        
+        <div class="chart-analysis">
+            <h4>تحلیل وضعیت تست‌زنی</h4>
+            <p id="testAnalysisText">در حال تحلیل داده‌ها...</p>
+        </div>
+        
+        <div class="chart-analysis">
+            <h4>تحلیل وضعیت رضایتمندی</h4>
+            <p id="satisfactionAnalysisText">در حال تحلیل داده‌ها...</p>
+        </div>
+        
+        <div class="text-center mt-4">
+            <button class="btn btn-primary" onclick="window.print()">چاپ گزارش</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('graphicReport').style.display = 'none'">بستن گزارش</button>
         </div>
     </div>
 
     <script>
         // داده‌های نمونه
         let studyData = [];
-        let inspirationalPoems = [
-            "چون شود میسرت صحبت حکیم - جمله عالم ببینی در حکم سیم",
-            "درس آموز ز مدرسه‌ای که در آن - عشق باشد معلم و جان باشد کتاب",
-            "هر که را دانش و بینش افزون شود - زنده گردد دلش روشن شود",
-            "دانش اندر دل تو باشد چو نور -心无物欲，即是秋空霁海",
-            "صبر کن حافظ به سختی روز و شب - عاقبت روزی بیابی روزنت"
-        ];
         
-        // بارگذاری داده‌های ذخیره شده در localStorage (شبیه‌سازی GitHub)
-        function loadFromLocalStorage() {
+        // بارگذاری داده‌های ذخیره شده در localStorage
+        function loadSavedData() {
             const savedData = localStorage.getItem('studyData');
             if (savedData) {
                 studyData = JSON.parse(savedData);
                 updateDataTable();
-                
-                // اگر داده‌ای وجود دارد، نمودارها را به روز کن
-                if (studyData.length > 0) {
-                    generateCharts();
-                }
             }
         }
         
-        // ذخیره داده‌ها در localStorage (شبیه‌سازی GitHub)
-        function saveToLocalStorage() {
+        // ذخیره داده‌ها در localStorage
+        function saveData() {
             localStorage.setItem('studyData', JSON.stringify(studyData));
-            alert('داده‌ها با موفقیت ذخیره شدند! (شبیه‌سازی ذخیره در GitHub)');
         }
         
-        // تابع برای افزودن داده
+        // افزودن داده جدید
         function addData() {
             const studentCode = document.getElementById('studentCode').value || 'ST1001';
-            const week = parseInt(document.getElementById('weekNumber').value) || 1;
+            const weekNumber = parseInt(document.getElementById('weekNumber').value) || 1;
             const studyHoursSpecialized = parseInt(document.getElementById('studyHoursSpecialized').value) || 0;
             const specializedTests = parseInt(document.getElementById('specializedTests').value) || 0;
             const studyHoursGeneral = parseInt(document.getElementById('studyHoursGeneral').value) || 0;
             const descriptiveQuestions = parseInt(document.getElementById('descriptiveQuestions').value) || 0;
             const markedTests = parseInt(document.getElementById('markedTests').value) || 0;
             
-            // دریافت میزان رضایت
-            const satisfaction = document.querySelector('input[name="satisfaction"]:checked')?.value || 3;
-            const advisorSatisfaction = document.querySelector('input[name="advisorSatisfaction"]:checked')?.value || 3;
+            // دریافت رضایت عملکرد
+            const satisfaction = document.querySelector('input[name="satisfaction"]:checked');
+            const satisfactionValue = satisfaction ? parseInt(satisfaction.value) : 3;
             
-            if (!studentCode || !week) {
-                alert('لطفاً کد مراجع و شماره هفته را وارد کنید.');
-                return;
-            }
+            // دریافت رضایت مشاور
+            const advisorSatisfaction = document.querySelector('input[name="advisorSatisfaction"]:checked');
+            const advisorSatisfactionValue = advisorSatisfaction ? parseInt(advisorSatisfaction.value) : 3;
             
-            // بررسی آیا داده تکراری وجود دارد
-            const existingIndex = studyData.findIndex(data => 
-                data.studentCode === studentCode && data.week === week
+            // بررسی آیا داده برای این هفته و این دانشجو قبلاً ثبت شده است
+            const existingIndex = studyData.findIndex(item => 
+                item.studentCode === studentCode && item.weekNumber === weekNumber
             );
             
-            const newData = {
-                studentCode, 
-                week, 
-                studyHoursSpecialized, 
-                specializedTests,
-                studyHoursGeneral,
-                descriptiveQuestions,
-                markedTests,
-                satisfaction: parseInt(satisfaction),
-                advisorSatisfaction: parseInt(advisorSatisfaction)
-            };
-            
             if (existingIndex !== -1) {
-                // به روزرسانی داده موجود
-                studyData[existingIndex] = newData;
+                // به روز رسانی داده موجود
+                studyData[existingIndex] = {
+                    studentCode,
+                    weekNumber,
+                    studyHoursSpecialized,
+                    specializedTests,
+                    studyHoursGeneral,
+                    descriptiveQuestions,
+                    markedTests,
+                    satisfaction: satisfactionValue,
+                    advisorSatisfaction: advisorSatisfactionValue
+                };
             } else {
                 // افزودن داده جدید
-                studyData.push(newData);
+                studyData.push({
+                    studentCode,
+                    weekNumber,
+                    studyHoursSpecialized,
+                    specializedTests,
+                    studyHoursGeneral,
+                    descriptiveQuestions,
+                    markedTests,
+                    satisfaction: satisfactionValue,
+                    advisorSatisfaction: advisorSatisfactionValue
+                });
             }
             
+            saveData();
             updateDataTable();
-            generateCharts();
+            updateCharts();
             
-            // پاک کردن فیلدهای ورودی
+            // ریست کردن فرم
             document.getElementById('weekNumber').value = '';
             document.getElementById('studyHoursSpecialized').value = '';
             document.getElementById('specializedTests').value = '';
@@ -553,112 +544,195 @@
             document.getElementById('descriptiveQuestions').value = '';
             document.getElementById('markedTests').value = '';
             
-            // بازنشانی انتخاب رضایت
-            document.querySelectorAll('input[name="satisfaction"]').forEach(input => input.checked = false);
-            document.querySelectorAll('input[name="advisorSatisfaction"]').forEach(input => input.checked = false);
+            alert('داده با موفقیت ثبت شد!');
         }
         
-        // تابع برای به روزرسانی جدول داده
+        // به روز رسانی جدول داده‌ها
         function updateDataTable() {
             const table = document.getElementById('dataTable');
             table.innerHTML = '';
             
-            // فیلتر کردن داده‌ها بر اساس کد دانشجو
-            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
-            const studentData = studyData.filter(data => data.studentCode === studentCode);
-            
-            // اگر داده‌ای وجود ندارد
-            if (studentData.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="10" class="text-center">هیچ داده‌ای برای نمایش وجود ندارد</td>`;
-                table.appendChild(row);
-                return;
-            }
-            
-            // مرتب‌سازی بر اساس هفته
-            studentData.sort((a, b) => a.week - b.week);
-            
-            studentData.forEach((data, index) => {
+            studyData.forEach((data, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${data.studentCode}</td>
-                    <td>${data.week}</td>
+                    <td>${data.weekNumber}</td>
                     <td>${data.studyHoursSpecialized}</td>
                     <td>${data.specializedTests}</td>
                     <td>${data.studyHoursGeneral}</td>
                     <td>${data.descriptiveQuestions}</td>
                     <td>${data.markedTests}</td>
-                    <td>${data.satisfaction}/5</td>
-                    <td>${data.advisorSatisfaction}/5</td>
-                    <td><button class="btn btn-sm btn-danger" onclick="removeData('${data.studentCode}', ${data.week})">حذف</button></td>
+                    <td>${data.satisfaction}</td>
+                    <td>${data.advisorSatisfaction}</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger" onclick="deleteData(${index})">حذف</button>
+                    </td>
                 `;
                 table.appendChild(row);
             });
         }
         
-        // تابع برای حذف داده
-        function removeData(studentCode, week) {
-            studyData = studyData.filter(data => 
-                !(data.studentCode === studentCode && data.week === week)
-            );
-            updateDataTable();
-            generateCharts();
+        // حذف داده
+        function deleteData(index) {
+            if (confirm('آیا از حذف این داده مطمئن هستید؟')) {
+                studyData.splice(index, 1);
+                saveData();
+                updateDataTable();
+                updateCharts();
+            }
         }
         
-        // تابع برای تولید نمودارها
-        function generateCharts() {
-            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
-            const studentData = studyData.filter(data => data.studentCode === studentCode);
+        // بارگذاری فایل اکسل
+        function loadExcelFile() {
+            document.getElementById('excelInput').click();
+        }
+        
+        document.getElementById('excelInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
             
-            // اگر داده‌ای وجود ندارد، نمودارها را پاک کن
-            if (studentData.length === 0) {
-                ['studyHoursChart', 'testCountChart', 'satisfactionChart', 'advisorSatisfactionChart'].forEach(id => {
-                    const ctx = document.getElementById(id);
-                    if (ctx) {
-                        ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
-                    }
-                });
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // فرض می‌کنیم اولین شیت حاوی داده‌ها است
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (jsonData.length > 0) {
+                    // تبدیل داده‌های اکسل به فرمت مورد نظر
+                    const newData = jsonData.map(row => ({
+                        studentCode: row['کد مراجع'] || 'ST1001',
+                        weekNumber: parseInt(row['هفته']) || 1,
+                        studyHoursSpecialized: parseInt(row['ساعات تخصصی']) || 0,
+                        specializedTests: parseInt(row['تست تخصصی']) || 0,
+                        studyHoursGeneral: parseInt(row['ساعات عمومی']) || 0,
+                        descriptiveQuestions: parseInt(row['سوال تشریحی']) || 0,
+                        markedTests: parseInt(row['تست مارکدار']) || 0,
+                        satisfaction: parseInt(row['رضایت عملکرد']) || 3,
+                        advisorSatisfaction: parseInt(row['رضایت مشاور']) || 3
+                    }));
+                    
+                    // ادغام داده‌های جدید با داده‌های موجود
+                    newData.forEach(newItem => {
+                        const existingIndex = studyData.findIndex(item => 
+                            item.studentCode === newItem.studentCode && item.weekNumber === newItem.weekNumber
+                        );
+                        
+                        if (existingIndex !== -1) {
+                            studyData[existingIndex] = newItem;
+                        } else {
+                            studyData.push(newItem);
+                        }
+                    });
+                    
+                    saveData();
+                    updateDataTable();
+                    updateCharts();
+                    
+                    alert(`تعداد ${jsonData.length} رکورد از فایل اکسل با موفقیت وارد شد.`);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        // خروجی به اکسل
+        function exportToExcel() {
+            if (studyData.length === 0) {
+                alert('داده‌ای برای خروجی وجود ندارد.');
                 return;
             }
             
-            // مرتب‌سازی بر اساس هفته
-            studentData.sort((a, b) => a.week - b.week);
+            const worksheet = XLSX.utils.json_to_sheet(studyData.map(item => ({
+                'کد مراجع': item.studentCode,
+                'هفته': item.weekNumber,
+                'ساعات تخصصی': item.studyHoursSpecialized,
+                'تست تخصصی': item.specializedTests,
+                'ساعات عمومی': item.studyHoursGeneral,
+                'سوال تشریحی': item.descriptiveQuestions,
+                'تست مارکدار': item.markedTests,
+                'رضایت عملکرد': item.satisfaction,
+                'رضایت مشاور': item.advisorSatisfaction
+            })));
             
-            const weeks = studentData.map(data => `هفته ${data.week}`);
-            const studyHoursSpecialized = studentData.map(data => data.studyHoursSpecialized);
-            const specializedTests = studentData.map(data => data.specializedTests);
-            const studyHoursGeneral = studentData.map(data => data.studyHoursGeneral);
-            const descriptiveQuestions = studentData.map(data => data.descriptiveQuestions);
-            const markedTests = studentData.map(data => data.markedTests);
-            const satisfaction = studentData.map(data => data.satisfaction);
-            const advisorSatisfaction = studentData.map(data => data.advisorSatisfaction);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'داده‌های مطالعاتی');
+            
+            // ایجاد نام فایل با تاریخ و ساعت فعلی
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}`;
+            const fileName = `مطالعات_${dateStr}.xlsx`;
+            
+            XLSX.writeFile(workbook, fileName);
+        }
+        
+        // تولید گزارش گرافیکی
+        function generateReport() {
+            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
+            document.getElementById('selectedStudent').textContent = studentCode;
+            document.getElementById('reportStudentCode').textContent = studentCode;
+            
+            // فیلتر داده‌های دانشجوی انتخاب شده
+            const studentData = studyData.filter(item => item.studentCode === studentCode);
+            
+            if (studentData.length === 0) {
+                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
+                return;
+            }
+            
+            // مرتب سازی داده‌ها بر اساس شماره هفته
+            studentData.sort((a, b) => a.weekNumber - b.weekNumber);
+            
+            // به روز رسانی نمودارهای گزارش
+            updateReportCharts(studentData);
+            
+            // تولید تحلیل‌ها
+            generateAnalysis(studentData);
+            
+            // نمایش گزارش
+            document.getElementById('graphicReport').style.display = 'block';
+            
+            // اسکرول به بخش گزارش
+            document.getElementById('graphicReport').scrollIntoView();
+        }
+        
+        // به روز رسانی نمودارهای گزارش
+        function updateReportCharts(studentData) {
+            const weeks = studentData.map(item => `هفته ${item.weekNumber}`);
+            const studyHoursSpecialized = studentData.map(item => item.studyHoursSpecialized);
+            const studyHoursGeneral = studentData.map(item => item.studyHoursGeneral);
+            const specializedTests = studentData.map(item => item.specializedTests);
+            const descriptiveQuestions = studentData.map(item => item.descriptiveQuestions);
+            const markedTests = studentData.map(item => item.markedTests);
+            const satisfaction = studentData.map(item => item.satisfaction);
+            const advisorSatisfaction = studentData.map(item => item.advisorSatisfaction);
             
             // نمودار ساعات مطالعه
+            const studyHoursCtx = document.getElementById('reportStudyHoursChart').getContext('2d');
             if (window.studyHoursChartInstance) {
                 window.studyHoursChartInstance.destroy();
             }
-            window.studyHoursChartInstance = new Chart(document.getElementById('studyHoursChart'), {
+            window.studyHoursChartInstance = new Chart(studyHoursCtx, {
                 type: 'line',
                 data: {
                     labels: weeks,
                     datasets: [
                         {
-                            label: 'ساعات مطالعه تخصصی',
+                            label: 'ساعات مطالعه دروس تخصصی',
                             data: studyHoursSpecialized,
-                            borderColor: '#6a11cb',
-                            backgroundColor: 'rgba(106, 17, 203, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.3
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            tension: 0.3,
+                            fill: true
                         },
                         {
-                            label: 'ساعات مطالعه عمومی',
+                            label: 'ساعات مطالعه دروس عمومی',
                             data: studyHoursGeneral,
-                            borderColor: '#2575fc',
-                            backgroundColor: 'rgba(37, 117, 252, 0.1)',
-                            borderWidth: 3,
-                            fill: true,
-                            tension: 0.3
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                            tension: 0.3,
+                            fill: true
                         }
                     ]
                 },
@@ -667,73 +741,65 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'روند ساعات مطالعه',
-                            font: {
-                                family: 'Vazirmatn',
-                                size: 16
-                            }
+                            text: 'ساعات مطالعه دروس تخصصی و عمومی'
                         },
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
-                            }
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
                         }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
+                        x: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: 'ساعات',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
+                                text: 'هفته برنامه'
                             }
                         },
-                        x: {
+                        y: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: 'هفته',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
+                                text: 'ساعات مطالعه'
                             }
                         }
                     }
                 }
             });
             
-            // نمودار تعداد تست و سوالات
+            // نمودار تعداد تست‌ها
+            const testCountCtx = document.getElementById('reportTestCountChart').getContext('2d');
             if (window.testCountChartInstance) {
                 window.testCountChartInstance.destroy();
             }
-            window.testCountChartInstance = new Chart(document.getElementById('testCountChart'), {
-                type: 'bar',
+            window.testCountChartInstance = new Chart(testCountCtx, {
+                type: 'line',
                 data: {
                     labels: weeks,
                     datasets: [
                         {
-                            label: 'تست تخصصی',
+                            label: 'تعداد تست تخصصی',
                             data: specializedTests,
-                            backgroundColor: 'rgba(37, 117, 252, 0.7)',
-                            borderColor: 'rgba(37, 117, 252, 1)',
-                            borderWidth: 2
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            tension: 0.3,
+                            fill: true
                         },
                         {
-                            label: 'سوالات تشریحی',
+                            label: 'تعداد سوال تشریحی',
                             data: descriptiveQuestions,
-                            backgroundColor: 'rgba(10, 180, 180, 0.7)',
-                            borderColor: 'rgba(10, 180, 180, 1)',
-                            borderWidth: 2
+                            borderColor: 'rgb(255, 159, 64)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                            tension: 0.3,
+                            fill: true
                         },
                         {
-                            label: 'تست مارکدار',
+                            label: 'تعداد تست مارکدار',
                             data: markedTests,
-                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 2
+                            borderColor: 'rgb(153, 102, 255)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                            tension: 0.3,
+                            fill: true
                         }
                     ]
                 },
@@ -742,38 +808,26 @@
                     plugins: {
                         title: {
                             display: true,
-                            text: 'روند تست و سوالات',
-                            font: {
-                                family: 'Vazirmatn',
-                                size: 16
-                            }
+                            text: 'تعداد تست‌ها و سوالات'
                         },
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
-                            }
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
                         }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
+                        x: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: 'تعداد',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
+                                text: 'هفته برنامه'
                             }
                         },
-                        x: {
+                        y: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: 'هفته',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
+                                text: 'تعداد'
                             }
                         }
                     }
@@ -781,112 +835,320 @@
             });
             
             // نمودار رضایت از عملکرد
+            const satisfactionCtx = document.getElementById('reportSatisfactionChart').getContext('2d');
             if (window.satisfactionChartInstance) {
                 window.satisfactionChartInstance.destroy();
             }
-            window.satisfactionChartInstance = new Chart(document.getElementById('satisfactionChart'), {
+            window.satisfactionChartInstance = new Chart(satisfactionCtx, {
                 type: 'line',
                 data: {
                     labels: weeks,
-                    datasets: [{
-                        label: 'رضایت از عملکرد',
-                        data: satisfaction,
-                        borderColor: '#0ba360',
-                        backgroundColor: 'rgba(11, 163, 96, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#0ba360'
-                    }]
+                    datasets: [
+                        {
+                            label: 'رضایت از عملکرد',
+                            data: satisfaction,
+                            borderColor: 'rgb(255, 205, 86)',
+                            backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         title: {
                             display: true,
-                            text: 'رضایت از عملکرد',
-                            font: {
-                                family: 'Vazirmatn',
-                                size: 16
-                            }
+                            text: 'رضایت از عملکرد'
                         },
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
-                            }
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
                         }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 5,
+                        x: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: 'امتیاز',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
+                                text: 'هفته برنامه'
                             }
                         },
-                        x: {
-                            title: {
+                        y: {
+                            display: true,
+                                title: {
                                 display: true,
-                                text: 'هفته',
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
-                            }
+                                text: 'میزان رضایت'
+                            },
+                            min: 1,
+                            max: 5
                         }
                     }
                 }
             });
             
             // نمودار رضایت از مشاور
+            const advisorSatisfactionCtx = document.getElementById('reportAdvisorSatisfactionChart').getContext('2d');
             if (window.advisorSatisfactionChartInstance) {
                 window.advisorSatisfactionChartInstance.destroy();
             }
-            window.advisorSatisfactionChartInstance = new Chart(document.getElementById('advisorSatisfactionChart'), {
+            window.advisorSatisfactionChartInstance = new Chart(advisorSatisfactionCtx, {
                 type: 'line',
                 data: {
                     labels: weeks,
-                    datasets: [{
-                        label: 'رضایت از مشاور',
-                        data: advisorSatisfaction,
-                        borderColor: '#ff416c',
-                        backgroundColor: 'rgba(255, 65, 108, 0.1)',
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#ff416c'
-                    }]
+                    datasets: [
+                        {
+                            label: 'رضایت از مشاور',
+                            data: advisorSatisfaction,
+                            borderColor: 'rgb(201, 203, 207)',
+                            backgroundColor: 'rgba(201, 203, 207, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         title: {
                             display: true,
-                            text: 'رضایت از مشاور',
-                            font: {
-                                family: 'Vazirmatn',
-                                size: 16
-                            }
+                            text: 'رضایت از تعامل با مشاور'
                         },
-                        legend: {
-                            labels: {
-                                font: {
-                                    family: 'Vazirmatn'
-                                }
-                            }
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
                         }
                     },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 5,
+                        x: {
+                            display: true,
                             title: {
                                 display: true,
-                                text: '
+                                text: 'هفته برنامه'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'میزان رضایت'
+                            },
+                            min: 1,
+                            max: 5
+                        }
+                    }
+                }
+            });
+        }
+        
+        // تولید تحلیل‌های گزارش
+        function generateAnalysis(studentData) {
+            // تحلیل ساعات مطالعه
+            const lastWeek = studentData[studentData.length - 1];
+            const prevWeek = studentData.length > 1 ? studentData[studentData.length - 2] : null;
+            
+            let studyAnalysis = '';
+            
+            // تحلیل ساعات مطالعه تخصصی
+            if (prevWeek) {
+                if (lastWeek.studyHoursSpecialized > prevWeek.studyHoursSpecialized) {
+                    studyAnalysis += `📈 روند شما در مطالعه دروس تخصصی صعودی است. این پیشرفت عالی است، ادامه دهید!<br>`;
+                } else if (lastWeek.studyHoursSpecialized < prevWeek.studyHoursSpecialized) {
+                    studyAnalysis += `📉 میزان مطالعه دروس تخصصی نزولی شده است. برای بازگشت به روند قبلی تلاش بیشتری کنید.<br>`;
+                } else {
+                    studyAnalysis += `➡ میزان مطالعه دروس تخصصی ثابت مانده است. سعی کنید آن را افزایش دهید.<br>`;
+                }
+            }
+            
+            // تحلیل ساعات مطالعه عمومی
+            if (prevWeek) {
+                if (lastWeek.studyHoursGeneral > prevWeek.studyHoursGeneral) {
+                    studyAnalysis += `📈 روند شما در مطالعه دروس عمومی صعودی است. این تعادل خوبی در مطالعه ایجاد می‌کند.<br>`;
+                } else if (lastWeek.studyHoursGeneral < prevWeek.studyHoursGeneral) {
+                    studyAnalysis += `📉 میزان مطالعه دروس عمومی نزولی شده است. به یاد داشته باشید که دروس عمومی نیز اهمیت دارند.<br>`;
+                } else {
+                    studyAnalysis += `➡ میزان مطالعه دروس عمومی ثابت مانده است. سعی کنید آن را بهبود بخشید.<br>`;
+                }
+            }
+            
+            // تحلیل کلی ساعات مطالعه
+            const totalStudyHours = lastWeek.studyHoursSpecialized + lastWeek.studyHoursGeneral;
+            if (totalStudyHours < 20) {
+                studyAnalysis += `⚠ میزان کل ساعات مطالعه شما پایین است. سعی کنید زمان بیشتری به مطالعه اختصاص دهید.<br>`;
+            } else if (totalStudyHours > 40) {
+                studyAnalysis += `⚠ میزان مطالعه شما بسیار بالا است. مراقب فرسودگی و خستگی باشید.<br>`;
+            } else {
+                studyAnalysis += `✅ میزان کل ساعات مطالعه شما در محدوده مطلوب قرار دارد.<br>`;
+            }
+            
+            document.getElementById('studyAnalysisText').innerHTML = studyAnalysis;
+            
+            // تحلیل تست‌ها و سوالات
+            let testAnalysis = '';
+            
+            // تحلیل تست تخصصی
+            if (prevWeek) {
+                if (lastWeek.specializedTests > prevWeek.specializedTests) {
+                    testAnalysis += `📈 روند تعداد تست‌های تخصصی شما صعودی است. این نشان‌دهنده تمرکز خوب شما است.<br>`;
+                } else if (lastWeek.specializedTests < prevWeek.specializedTests) {
+                    testAnalysis += `📉 تعداد تست‌های تخصصی نزولی شده است. سعی کنید تعداد تست‌ها را افزایش دهید.<br>`;
+                } else {
+                    testAnalysis += `➡ تعداد تست‌های تخصصی ثابت مانده است. برای بهبود، تعداد تست‌ها را افزایش دهید.<br>`;
+                }
+            }
+            
+            // تحلیل سوالات تشریحی
+            if (prevWeek) {
+                if (lastWeek.descriptiveQuestions > prevWeek.descriptiveQuestions) {
+                    testAnalysis += `📈 روند تعداد سوالات تشریحی شما صعودی است. این برای درک عمیق‌تر مفید است.<br>`;
+                } else if (lastWeek.descriptiveQuestions < prevWeek.descriptiveQuestions) {
+                    testAnalysis += `📉 تعداد سوالات تشریحی نزولی شده است. حل سوالات تشریحی را فراموش نکنید.<br>`;
+                } else {
+                    testAnalysis += `➡ تعداد سوالات تشریحی ثابت مانده است. سعی کنید آن را افزایش دهید.<br>`;
+                }
+            }
+            
+            // تحلیل تست‌های مارکدار
+            if (prevWeek) {
+                if (lastWeek.markedTests > prevWeek.markedTests) {
+                    testAnalysis += `📈 روند تست‌های مارکدار شما صعودی است. این نشان می‌دهد در حال شناسایی نقاط ضعف خود هستید.<br>`;
+                } else if (lastWeek.markedTests < prevWeek.markedTests) {
+                    testAnalysis += `📉 تعداد تست‌های مارکدار نزولی شده است. مارک کردن تست‌ها برای مرور بعدی مهم است.<br>`;
+                } else {
+                    testAnalysis += `➡ تعداد تست‌های مارکدار ثابت مانده است. سعی کنید تست‌های بیشتری را برای مرور علامت بزنید.<br>`;
+                }
+            }
+            
+            // نسبت تست به مطالعه
+            if (lastWeek.studyHoursSpecialized > 0) {
+                const testsPerHour = lastWeek.specializedTests / lastWeek.studyHoursSpecialized;
+                if (testsPerHour < 5) {
+                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه پایین است. سعی کنید در زمان مطالعه تست بیشتری بزنید.<br>`;
+                } else if (testsPerHour > 15) {
+                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه بسیار بالا است. مطمئن شوید تست‌ها را با دقت می‌زنید.<br>`;
+                }
+            }
+            
+            document.getElementById('testAnalysisText').innerHTML = testAnalysis;
+            
+            // تحلیل رضایتمندی
+            let satisfactionAnalysis = '';
+            
+            // تحلیل رضایت از عملکرد
+            if (prevWeek) {
+                if (lastWeek.satisfaction > prevWeek.satisfaction) {
+                    satisfactionAnalysis += `📈 رضایت شما از عملکرد خود صعودی است. این نشان‌دهنده نگرش مثبت شما است.<br>`;
+                } else if (lastWeek.satisfaction < prevWeek.satisfaction) {
+                    satisfactionAnalysis += `📉 رضایت شما از عملکرد خود نزولی شده است. برای مشاور خود در اسرع وقت پیام بگذارید.<br>`;
+                } else {
+                    satisfactionAnalysis += `➡ رضایت شما از عملکرد خود ثابت مانده است. سعی کنید با مشاور خود در مورد بهبود آن صحبت کنید.<br>`;
+                }
+            }
+            
+            // تحلیل رضایت از مشاور
+            if (prevWeek) {
+                if (lastWeek.advisorSatisfaction > prevWeek.advisorSatisfaction) {
+                    satisfactionAnalysis += `📈 رضایت شما از مشاور صعودی است. این نشان‌دهنده ارتباط موثر با مشاور است.<br>`;
+                } else if (lastWeek.advisorSatisfaction < prevWeek.advisorSatisfaction) {
+                    satisfactionAnalysis += `📉 رضایت شما از مشاور نزولی شده است. چه کاری برای افزایش میزان رضایت شما از من لازم است در یک پیام در شاد به من بگویید.<br>`;
+                } else {
+                    satisfactionAnalysis += `➡ رضایت شما از مشاور ثابت مانده است. اگر پیشنهادی برای بهبود دارید، مطرح کنید.<br>`;
+                }
+            }
+            
+            // تحلیل کلی رضایتمندی
+            if (lastWeek.satisfaction < 3) {
+                satisfactionAnalysis += `🔴 سطح رضایت شما از عملکرد خود پایین است. لطفاً با مشاور خود تماس بگیرید.<br>`;
+            }
+            
+            if (lastWeek.advisorSatisfaction < 3) {
+                satisfactionAnalysis += `🔴 سطح رضایت شما از مشاور پایین است. لطفاً نظرات خود را با ما در میان بگذارید.<br>`;
+            }
+            
+            document.getElementById('satisfactionAnalysisText').innerHTML = satisfactionAnalysis;
+        }
+        
+        // خروجی به PDF
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // اضافه کردن عنوان
+            doc.setFontSize(20);
+            doc.text('گزارش تحلیلی پیشرفت تحصیلی', 105, 15, { align: 'center' });
+            doc.setFontSize(12);
+            doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 105, 22, { align: 'center' });
+            
+            // اضافه کردن تاریخ
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
+            doc.setFontSize(10);
+            doc.text(`تاریخ گزارش: ${dateStr}`, 105, 29, { align: 'center' });
+            
+            // اضافه کردن کد دانشجو
+            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
+            doc.text(`کد دانشجو: ${studentCode}`, 105, 36, { align: 'center' });
+            
+            // اضافه کردن نمودارها (به صورت ساده)
+            let yPosition = 45;
+            
+            // اضافه کردن تحلیل‌ها
+            doc.setFontSize(12);
+            doc.text('تحلیل وضعیت تحصیلی:', 14, yPosition);
+            yPosition += 7;
+            
+            const studyAnalysis = document.getElementById('studyAnalysisText').textContent;
+            const splitStudyAnalysis = doc.splitTextToSize(studyAnalysis, 180);
+            doc.setFontSize(10);
+            doc.text(splitStudyAnalysis, 14, yPosition);
+            yPosition += splitStudyAnalysis.length * 7 + 5;
+            
+            doc.setFontSize(12);
+            doc.text('تحلیل وضعیت تست‌زنی:', 14, yPosition);
+            yPosition += 7;
+            
+            const testAnalysis = document.getElementById('testAnalysisText').textContent;
+            const splitTestAnalysis = doc.splitTextToSize(testAnalysis, 180);
+            doc.setFontSize(10);
+            doc.text(splitTestAnalysis, 14, yPosition);
+            yPosition += splitTestAnalysis.length * 7 + 5;
+            
+            doc.setFontSize(12);
+            doc.text('تحلیل وضعیت رضایتمندی:', 14, yPosition);
+            yPosition += 7;
+            
+            const satisfactionAnalysis = document.getElementById('satisfactionAnalysisText').textContent;
+            const splitSatisfactionAnalysis = doc.splitTextToSize(satisfactionAnalysis, 180);
+            doc.setFontSize(10);
+            doc.text(splitSatisfactionAnalysis, 14, yPosition);
+            
+            // ذخیره فایل PDF
+            const dateStrForFile = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}`;
+            doc.save(`مطالعات_${studentCode}_${dateStrForFile}.pdf`);
+        }
+        
+        // به روز رسانی نمودارهای اصلی
+        function updateCharts() {
+            // در اینجا کد به روز رسانی نمودارهای اصلی قرار می‌گیرد
+        }
+        
+        // بارگذاری اولیه داده‌ها
+        window.onload = function() {
+            loadSavedData();
+            updateCharts();
+            
+            // بارگذاری یک شعر الهام بخش
+            const poems = [
+                "راهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که تا منزل خود پیوسته رود",
+                "چون توانی کار بزرگ کن که در این عمر / هیچ کار بزرگ، آسان به دست ناید",
+                "بار دیگر از نوای بلبلان باغ ارم / یاد می‌آید که فصل گلستان آمد باز",
+                "هر که ناموخت از گذشت روزگار / هیچ ناموزد ز هیچ آموزگار",
+                "نابرده رنج گنج میسر نمی‌شود / مزد آن گرفت جان برادر که کار کرد"
+            ];
+            
+            const randomPoem = poems[Math.floor(Math.random() * poems.length)];
+            document.getElementById('inspirationalPoem').textContent = randomPoem;
+        };
+    </script>
+</body>
+</html>
