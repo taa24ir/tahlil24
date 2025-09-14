@@ -226,6 +226,20 @@
             border-right: 4px solid #6a11cb;
         }
         
+        .auth-container {
+            background: var(--secondary-gradient);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            color: white;
+            text-align: center;
+        }
+        
+        .auth-input {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        
         @media print {
             body * {
                 visibility: hidden;
@@ -260,147 +274,159 @@
             </ol>
         </div>
 
-        <div class="row mb-4">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">ورودی اطلاعات</div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="studentCode" class="form-label">کد مراجع</label>
-                            <input type="text" class="form-control" id="studentCode" placeholder="مثلاً: ST1001">
+        <!-- بخش احراز هویت -->
+        <div class="auth-container" id="authSection">
+            <h4>ورود به سیستم</h4>
+            <p>لطفاً کد دسترسی را وارد کنید</p>
+            <div class="auth-input">
+                <input type="password" class="form-control text-center" id="accessCode" placeholder="کد دسترسی">
+                <button class="btn btn-light mt-3 w-100" onclick="checkAccessCode()">تایید و ورود به سیستم</button>
+            </div>
+        </div>
+
+        <div id="mainContent" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">ورودی اطلاعات</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="studentCode" class="form-label">کد مراجع</label>
+                                <input type="text" class="form-control" id="studentCode" placeholder="مثلاً: ST1001">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">شماره هفته برنامه</label>
+                                <input type="number" class="form-control" id="weekNumber" placeholder="شماره هفته">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ساعات مطالعه دروس تخصصی در هفته</label>
+                                <input type="number" class="form-control" id="studyHoursSpecialized" placeholder="تعداد ساعت">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">تعداد تست تخصصی در هفته</label>
+                                <input type="number" class="form-control" id="specializedTests" placeholder="تعداد تست">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">ساعات مطالعه دروس عمومی در هفته</label>
+                                <input type="number" class="form-control" id="studyHoursGeneral" placeholder="تعداد ساعت">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">تعداد سوال تشریحی دروس عمومی в هفته</label>
+                                <input type="number" class="form-control" id="descriptiveQuestions" placeholder="تعداد سوال">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">تعداد تست مارکدار شده в هفته</label>
+                                <input type="number" class="form-control" id="markedTests" placeholder="تعداد تست">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">میزان رضایت از عملکرد</label>
+                                <div class="rating-input">
+                                    <label><input type="radio" name="satisfaction" value="1"><span>1</span></label>
+                                    <label><input type="radio" name="satisfaction" value="2"><span>2</span></label>
+                                    <label><input type="radio" name="satisfaction" value="3"><span>3</span></label>
+                                    <label><input type="radio" name="satisfaction" value="4"><span>4</span></label>
+                                    <label><input type="radio" name="satisfaction" value="5"><span>5</span></label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">میزان رضایت از تعامل با مشاور</label>
+                                <div class="rating-input">
+                                    <label><input type="radio" name="advisorSatisfaction" value="1"><span>1</span></label>
+                                    <label><input type="radio" name="advisorSatisfaction" value="2"><span>2</span></label>
+                                    <label><input type="radio" name="advisorSatisfaction" value="3"><span>3</span></label>
+                                    <label><input type="radio" name="advisorSatisfaction" value="4"><span>4</span></label>
+                                    <label><input type="radio" name="advisorSatisfaction" value="5"><span>5</span></label>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary w-100 mb-2" onclick="addData()">افزودن داده</button>
+                            <button class="btn btn-outline-primary w-100" onclick="loadExcelFile()">ورودی از اکسل</button>
+                            <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;">
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">شماره هفته برنامه</label>
-                            <input type="number" class="form-control" id="weekNumber" placeholder="شماره هفته">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">ساعات مطالعه دروس تخصصی در هفته</label>
-                            <input type="number" class="form-control" id="studyHoursSpecialized" placeholder="تعداد ساعت">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">تعداد تست تخصصی در هفته</label>
-                            <input type="number" class="form-control" id="specializedTests" placeholder="تعداد تست">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">ساعات مطالعه دروس عمومی در هفته</label>
-                            <input type="number" class="form-control" id="studyHoursGeneral" placeholder="تعداد ساعت">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">تعداد سوال تشریحی دروس عمومی в هفته</label>
-                            <input type="number" class="form-control" id="descriptiveQuestions" placeholder="تعداد سوال">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">تعداد تست مارکدار شده در هفته</label>
-                            <input type="number" class="form-control" id="markedTests" placeholder="تعداد تست">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">میزان رضایت از عملکرد</label>
-                            <div class="rating-input">
-                                <label><input type="radio" name="satisfaction" value="1"><span>1</span></label>
-                                <label><input type="radio" name="satisfaction" value="2"><span>2</span></label>
-                                <label><input type="radio" name="satisfaction" value="3"><span>3</span></label>
-                                <label><input type="radio" name="satisfaction" value="4"><span>4</span></label>
-                                <label><input type="radio" name="satisfaction" value="5"><span>5</span></label>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">خروجی و گزارش‌ها</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="loadStudentCode" class="form-label">کد دانشجو برای گزارش</label>
+                                <input type="text" class="form-control" id="loadStudentCode" placeholder="مثلاً: ST1001">
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-success" onclick="generateReport()">گزارش گرافیکی</button>
+                                <button class="btn btn-danger" onclick="exportToExcel()">خروجی اکسل</button>
+                                <button class="btn btn-info text-white" onclick="exportToPDF()">خروجی PDF</button>
+                            </div>
+                            
+                            <div class="student-id-badge d-inline-block my-3">
+                                دانشجوی انتخاب شده: <span id="selectedStudent">ST1001</span>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">میزان رضایت از تعامل با مشاور</label>
-                            <div class="rating-input">
-                                <label><input type="radio" name="advisorSatisfaction" value="1"><span>1</span></label>
-                                <label><input type="radio" name="advisorSatisfaction" value="2"><span>2</span></label>
-                                <label><input type="radio" name="advisorSatisfaction" value="3"><span>3</span></label>
-                                <label><input type="radio" name="advisorSatisfaction" value="4"><span>4</span></label>
-                                <label><input type="radio" name="advisorSatisfaction" value="5"><span>5</span></label>
-                            </div>
-                        </div>
-                        
-                        <button class="btn btn-primary w-100 mb-2" onclick="addData()">افزودن داده</button>
-                        <button class="btn btn-outline-primary w-100" onclick="loadExcelFile()">ورودی از اکسل</button>
-                        <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;">
                     </div>
                 </div>
             </div>
             
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">خروجی و گزارش‌ها</div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="loadStudentCode" class="form-label">کد دانشجو برای گزارش</label>
-                            <input type="text" class="form-control" id="loadStudentCode" placeholder="مثلاً: ST1001">
-                        </div>
-                        
-                        <div class="d-grid gap-2">
-                            <button class="btn btn-success" onclick="generateReport()">گزارش گرافیکی</button>
-                            <button class="btn btn-danger" onclick="exportToExcel()">خروجی اکسل</button>
-                            <button class="btn btn-info text-white" onclick="exportToPDF()">خروجی PDF</button>
-                        </div>
-                        
-                        <div class="student-id-badge d-inline-block my-3">
-                            دانشجوی انتخاب شده: <span id="selectedStudent">ST1001</span>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">داده‌های وارد شده</div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>کد مراجع</th>
+                                            <th>هفته</th>
+                                            <th>ساعات تخصصی</th>
+                                            <th>تست تخصصی</th>
+                                            <th>ساعات عمومی</th>
+                                            <th>سوال تشریحی</th>
+                                            <th>تست مارکدار</th>
+                                            <th>رضایت عملکرد</th>
+                                            <th>رضایت مشاور</th>
+                                            <th>عملیات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dataTable">
+                                        <!-- داده ها اینجا نمایش داده می شوند -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">داده‌های وارد شده</div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>کد مراجع</th>
-                                        <th>هفته</th>
-                                        <th>ساعات تخصصی</th>
-                                        <th>تست تخصصی</th>
-                                        <th>ساعات عمومی</th>
-                                        <th>سوال تشریحی</th>
-                                        <th>تست مارکدار</th>
-                                        <th>رضایت عملکرد</th>
-                                        <th>رضایت مشاور</th>
-                                        <th>عملیات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="dataTable">
-                                    <!-- داده ها اینجا نمایش داده می شوند -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">نمودارهای تحلیلی</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="studyHoursChart"></canvas>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">نمودارهای تحلیلی</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <canvas id="studyHoursChart"></canvas>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="testCountChart"></canvas>
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <canvas id="testCountChart"></canvas>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="satisfactionChart"></canvas>
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <canvas id="satisfactionChart"></canvas>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="advisorSatisfactionChart"></canvas>
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <canvas id="advisorSatisfactionChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -466,6 +492,30 @@
     <script>
         // داده‌های نمونه
         let studyData = [];
+        const ACCESS_CODE = "1213123"; // کد دسترسی
+        
+        // بررسی کد دسترسی
+        function checkAccessCode() {
+            const enteredCode = document.getElementById('accessCode').value;
+            
+            if (enteredCode === ACCESS_CODE) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                localStorage.setItem('isAuthenticated', 'true');
+            } else {
+                alert('کد دسترسی نامعتبر است. لطفاً دوباره تلاش کنید.');
+            }
+        }
+        
+        // بررسی وضعیت احراز هویت
+        function checkAuthentication() {
+            const isAuthenticated = localStorage.getItem('isAuthenticated');
+            
+            if (isAuthenticated === 'true') {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+            }
+        }
         
         // بارگذاری داده‌های ذخیره شده در localStorage
         function loadSavedData() {
@@ -483,6 +533,12 @@
         
         // افزودن داده جدید
         function addData() {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             const studentCode = document.getElementById('studentCode').value || 'ST1001';
             const weekNumber = parseInt(document.getElementById('weekNumber').value) || 1;
             const studyHoursSpecialized = parseInt(document.getElementById('studyHoursSpecialized').value) || 0;
@@ -574,6 +630,12 @@
         
         // حذف داده
         function deleteData(index) {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             if (confirm('آیا از حذف این داده مطمئن هستید؟')) {
                 studyData.splice(index, 1);
                 saveData();
@@ -584,6 +646,12 @@
         
         // بارگذاری فایل اکسل
         function loadExcelFile() {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             document.getElementById('excelInput').click();
         }
         
@@ -631,7 +699,7 @@
                     updateDataTable();
                     updateCharts();
                     
-                    alert(`تعداد ${jsonData.length} رکورد از فایل اکسل با موفقیت وارد شد.`);
+                    alert(`تعداد ${jsonData.length} رکورد از فایل اکسل با успеیت وارد شد.`);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -639,6 +707,12 @@
         
         // خروجی به اکسل
         function exportToExcel() {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             if (studyData.length === 0) {
                 alert('داده‌ای برای خروجی وجود ندارد.');
                 return;
@@ -669,6 +743,12 @@
         
         // تولید گزارش گرافیکی
         function generateReport() {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
             document.getElementById('selectedStudent').textContent = studentCode;
             document.getElementById('reportStudentCode').textContent = studentCode;
@@ -1062,7 +1142,7 @@
             }
             
             if (lastWeek.advisorSatisfaction < 3) {
-                satisfactionAnalysis += `🔴 سطح رضایت شما از مشاور پایین است. لطفاً نظرات خود را با ما در میان بگذارید.<br>`;
+                satisfactionAnalysis += `🔴 سطح رضایت شما از مشاور پایین است. لطفاً نظرات خود را با мы در میان بگذارید.<br>`;
             }
             
             document.getElementById('satisfactionAnalysisText').innerHTML = satisfactionAnalysis;
@@ -1070,6 +1150,12 @@
         
         // خروجی به PDF
         function exportToPDF() {
+            // بررسی احراز هویت
+            if (localStorage.getItem('isAuthenticated') !== 'true') {
+                alert('لطفاً ابتدا وارد سیستم شوید.');
+                return;
+            }
+            
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
@@ -1134,6 +1220,7 @@
         
         // بارگذاری اولیه داده‌ها
         window.onload = function() {
+            checkAuthentication();
             loadSavedData();
             updateCharts();
             
