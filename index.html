@@ -331,11 +331,11 @@
                                 <input type="number" class="form-control" id="studyHoursGeneral" placeholder="تعداد ساعت">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد سوال تشریحی دروس عمومی в هفته</label>
+                                <label class="form-label">تعداد سوال تشریحی دروس عمومی در هفته</label>
                                 <input type="number" class="form-control" id="descriptiveQuestions" placeholder="تعداد سوال">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد تست مارکدار شده в هفته</label>
+                                <label class="form-label">تعداد تست مارکدار شده در هفته</label>
                                 <input type="number" class="form-control" id="markedTests" placeholder="تعداد تست">
                             </div>
                             
@@ -373,7 +373,7 @@
                         <div class="card-header">خروجی و گزارش‌ها</div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="loadStudentCode" class="form-label">کد دانشجو برای گزارش</label>
+                                <label for="loadStudentCode" class="form-label">کد مراجع برای گزارش</label>
                                 <input type="text" class="form-control" id="loadStudentCode" placeholder="مثلاً: ST1001">
                             </div>
                             
@@ -384,7 +384,7 @@
                             </div>
                             
                             <div class="student-id-badge d-inline-block my-3">
-                                دانشجوی انتخاب شده: <span id="selectedStudent">ST1001</span>
+                                مراجع انتخاب شده: <span id="selectedStudent">ST1001</span>
                             </div>
                         </div>
                     </div>
@@ -504,7 +504,7 @@
         <div class="report-header">
             <h1>آکادمی تحصیلی دکتر احسان افشارمنش</h1>
             <p>گزارش تحلیلی پیشرفت تحصیلی</p>
-            <p>کد دانشجو: <span id="reportStudentCode"></span></p>
+            <p>کد مراجع: <span id="reportStudentCode"></span></p>
             <a href="https://zil.ink/ehsan.afshar" target="_blank">https://zil.ink/ehsan.afshar</a>
         </div>
         
@@ -681,7 +681,7 @@
             const advisorSatisfaction = document.querySelector('input[name="advisorSatisfaction"]:checked');
             const advisorSatisfactionValue = advisorSatisfaction ? parseInt(advisorSatisfaction.value) : 3;
             
-            // بررسی آیا داده برای این هفته و این دانشجو قبلاً ثبت شده است
+            // بررسی آیا داده برای این هفته و این مراجع قبلاً ثبت شده است
             const existingIndex = studyData.findIndex(item => 
                 item.studentCode === studentCode && item.weekNumber === weekNumber
             );
@@ -880,11 +880,11 @@
             document.getElementById('selectedStudent').textContent = studentCode;
             document.getElementById('reportStudentCode').textContent = studentCode;
             
-            // فیلتر داده‌های دانشجوی انتخاب شده
+            // فیلتر داده‌های مراجع انتخاب شده
             const studentData = studyData.filter(item => item.studentCode === studentCode);
             
             if (studentData.length === 0) {
-                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
+                alert('داده‌ای برای مراجع انتخاب شده یافت نشد.');
                 return;
             }
             
@@ -1309,7 +1309,7 @@
             const studentData = studyData.filter(item => item.studentCode === studentCode);
             
             if (studentData.length === 0) {
-                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
+                alert('داده‌ای برای مراجع انتخاب شده یافت نشد.');
                 return;
             }
 
@@ -1375,7 +1375,7 @@
             doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 148, 90, { align: 'center' });
             
             doc.setFontSize(16);
-            doc.text(`کد دانشجو: ${studentCode}`, 148, 120, { align: 'center' });
+            doc.text(`کد مراجع: ${studentCode}`, 148, 120, { align: 'center' });
             
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
@@ -1705,10 +1705,16 @@
             
             // بارگذاری یک شعر الهام بخش
             const poems = [
-                "راهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که تا منزل خود پیوسته رود",
+                "رهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که آهسته خود پیوسته رود",
                 "چون توانی کار بزرگ کن که در این عمر / هیچ کار بزرگ، آسان به دست ناید",
+                 "دور گردون گر دو روزی بر مراد ما نرفت / دائما یکسان نباشد حال دوران، غم مخور",
+                 "سعدیا دی رفت و فردا همچنان موجود نیست / در میان این و آن، فرصت شمار امروز را",
                 "بار دیگر از نوای بلبلان باغ ارم / یاد می‌آید که فصل گلستان آمد باز",
+                "در پیله‌ترین حالت دنیا / آن شاپرک امید شما باش",
+                 "پرواز بـه بال نیست بـه باوره",
                 "هر که ناموخت از گذشت روزگار / هیچ ناموزد ز هیچ آموزگار",
+                "تا رنج تحمل نکنی گنج نبینی / تا شب نرود صبح پدیدار نباشد",
+                 "هیچوقت دست نکش ، بهترین چیزا زمان میبرن /  𝑵𝒆𝒗𝒆𝒓 𝒈𝒊𝒗𝒆 𝒖𝒑, 𝒈𝒓𝒆𝒂𝒕 𝒕𝒉𝒊𝒏𝒈𝒔 𝒕𝒂𝒌𝒆 𝒕𝒊𝒎𝒆️",
                 "نابرده رنج گنج میسر نمی‌شود / مزد آن گرفت جان برادر که کار کرد"
             ];
             
@@ -1718,3 +1724,4 @@
     </script>
 </body>
 </html>
+
