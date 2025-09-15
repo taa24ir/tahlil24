@@ -240,6 +240,26 @@
             margin: 0 auto;
         }
         
+        .summary-box {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .summary-box h5 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .summary-box p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0;
+        }
+        
         @media print {
             body * {
                 visibility: hidden;
@@ -368,6 +388,45 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- باکس‌های خلاصه عملکرد -->
+                    <div class="card mt-4">
+                        <div class="card-header">خلاصه عملکرد</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="summary-box">
+                                        <h5>جمع ساعات تخصصی</h5>
+                                        <p id="totalSpecializedHours">0</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="summary-box">
+                                        <h5>جمع ساعات عمومی</h5>
+                                        <p id="totalGeneralHours">0</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="summary-box">
+                                        <h5>جمع تست تخصصی</h5>
+                                        <p id="totalSpecializedTests">0</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="summary-box">
+                                        <h5>جمع سوال تشریحی</h5>
+                                        <p id="totalDescriptiveQuestions">0</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="summary-box">
+                                        <h5>جمع تست مارکدار</h5>
+                                        <p id="totalMarkedTests">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -452,6 +511,51 @@
         <div class="poem-container">
             <p id="inspirationalPoem">در حال دریافت شعر الهام بخش...</p>
         </div>
+
+        <!-- خلاصه عملکرد در گزارش گرافیکی -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <h3>خلاصه عملکرد</h3>
+                <div class="row">
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>جمع ساعات تخصصی</h5>
+                            <p id="reportTotalSpecializedHours">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>جمع ساعات عمومی</h5>
+                            <p id="reportTotalGeneralHours">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>جمع تست تخصصی</h5>
+                            <p id="reportTotalSpecializedTests">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>جمع سوال تشریحی</h5>
+                            <p id="reportTotalDescriptiveQuestions">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>جمع تست مارکدار</h5>
+                            <p id="reportTotalMarkedTests">0</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="summary-box">
+                            <h5>تعداد هفته‌ها</h5>
+                            <p id="reportTotalWeeks">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="report-charts">
             <div class="report-chart">
@@ -523,12 +627,34 @@
             if (savedData) {
                 studyData = JSON.parse(savedData);
                 updateDataTable();
+                updateSummaryBoxes();
             }
         }
         
         // ذخیره داده‌ها در localStorage
         function saveData() {
             localStorage.setItem('studyData', JSON.stringify(studyData));
+            updateSummaryBoxes();
+        }
+        
+        // به روز رسانی باکس‌های خلاصه عملکرد
+        function updateSummaryBoxes() {
+            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
+            const studentData = studyData.filter(item => item.studentCode === studentCode);
+            
+            // محاسبه جمع‌ها
+            const totalSpecializedHours = studentData.reduce((sum, item) => sum + item.studyHoursSpecialized, 0);
+            const totalGeneralHours = studentData.reduce((sum, item) => sum + item.studyHoursGeneral, 0);
+            const totalSpecializedTests = studentData.reduce((sum, item) => sum + item.specializedTests, 0);
+            const totalDescriptiveQuestions = studentData.reduce((sum, item) => sum + item.descriptiveQuestions, 0);
+            const totalMarkedTests = studentData.reduce((sum, item) => sum + item.markedTests, 0);
+            
+            // به روز رسانی مقادیر در باکس‌ها
+            document.getElementById('totalSpecializedHours').textContent = totalSpecializedHours;
+            document.getElementById('totalGeneralHours').textContent = totalGeneralHours;
+            document.getElementById('totalSpecializedTests').textContent = totalSpecializedTests;
+            document.getElementById('totalDescriptiveQuestions').textContent = totalDescriptiveQuestions;
+            document.getElementById('totalMarkedTests').textContent = totalMarkedTests;
         }
         
         // افزودن داده جدید
@@ -699,7 +825,7 @@
                     updateDataTable();
                     updateCharts();
                     
-                    alert(`تعداد ${jsonData.length} رکورد از فایل اکسل با успеیت وارد شد.`);
+                    alert(`تعداد ${jsonData.length} رکورد از فایل اکسل با موفقیت وارد شد.`);
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -733,12 +859,11 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, 'داده‌های مطالعاتی');
             
-            // ایجاد نام فایل با تاریخ و ساعت فعلی
-// ایجاد نام فایل با تاریخ و کد مراجع
-const now = new Date();
-const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
-const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}`;
-const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
+            // ایجاد نام فایل با تاریخ و کد مراجع
+            const now = new Date();
+            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
+            const dateStr = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}`;
+            const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
             
             XLSX.writeFile(workbook, fileName);
         }
@@ -766,6 +891,9 @@ const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
             // مرتب سازی داده‌ها بر اساس شماره هفته
             studentData.sort((a, b) => a.weekNumber - b.weekNumber);
             
+            // به روز رسانی خلاصه عملکرد در گزارش
+            updateReportSummary(studentData);
+            
             // به روز رسانی نمودارهای گزارش
             updateReportCharts(studentData);
             
@@ -777,6 +905,25 @@ const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
             
             // اسکرول به بخش گزارش
             document.getElementById('graphicReport').scrollIntoView();
+        }
+        
+        // به روز رسانی خلاصه عملکرد در گزارش گرافیکی
+        function updateReportSummary(studentData) {
+            // محاسبه جمع‌ها
+            const totalSpecializedHours = studentData.reduce((sum, item) => sum + item.studyHoursSpecialized, 0);
+            const totalGeneralHours = studentData.reduce((sum, item) => sum + item.studyHoursGeneral, 0);
+            const totalSpecializedTests = studentData.reduce((sum, item) => sum + item.specializedTests, 0);
+            const totalDescriptiveQuestions = studentData.reduce((sum, item) => sum + item.descriptiveQuestions, 0);
+            const totalMarkedTests = studentData.reduce((sum, item) => sum + item.markedTests, 0);
+            const totalWeeks = studentData.length;
+            
+            // به روز رسانی مقادیر در گزارش
+            document.getElementById('reportTotalSpecializedHours').textContent = totalSpecializedHours;
+            document.getElementById('reportTotalGeneralHours').textContent = totalGeneralHours;
+            document.getElementById('reportTotalSpecializedTests').textContent = totalSpecializedTests;
+            document.getElementById('reportTotalDescriptiveQuestions').textContent = totalDescriptiveQuestions;
+            document.getElementById('reportTotalMarkedTests').textContent = totalMarkedTests;
+            document.getElementById('reportTotalWeeks').textContent = totalWeeks;
         }
         
         // به روز رسانی نمودارهای گزارش
@@ -1144,75 +1291,405 @@ const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
             }
             
             if (lastWeek.advisorSatisfaction < 3) {
-                satisfactionAnalysis += `🔴 سطح رضایت شما از مشاور پایین است. لطفاً نظرات خود را با мы در میان بگذارید.<br>`;
+                satisfactionAnalysis += `🔴 سطح رضایت شما از مشاور پایین است. لطفاً نظرات خود را با ما در میان بگذارید.<br>`;
             }
             
             document.getElementById('satisfactionAnalysisText').innerHTML = satisfactionAnalysis;
         }
         
-        // خروجی به PDF
+        // خروجی به PDF با طراحی زیبا و حرفه‌ای
         function exportToPDF() {
             // بررسی احراز هویت
             if (localStorage.getItem('isAuthenticated') !== 'true') {
                 alert('لطفاً ابتدا وارد سیستم شوید.');
                 return;
             }
+
+            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
+            const studentData = studyData.filter(item => item.studentCode === studentCode);
+            
+            if (studentData.length === 0) {
+                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
+                return;
+            }
+
+            // مرتب سازی داده‌ها بر اساس شماره هفته
+            studentData.sort((a, b) => a.weekNumber - b.weekNumber);
             
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const doc = new jsPDF({
+                orientation: 'landscape',
+                unit: 'mm',
+                format: 'a4'
+            });
             
-            // اضافه کردن عنوان
-            doc.setFontSize(20);
-            doc.text('گزارش تحلیلی پیشرفت تحصیلی', 105, 15, { align: 'center' });
-            doc.setFontSize(12);
-            doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 105, 22, { align: 'center' });
+            // اضافه کردن فونت فارسی (با فرض استفاده از فونت استاندارد)
+            doc.setFont('helvetica', 'normal');
             
-            // اضافه کردن تاریخ
+            // تابع برای اضافه کردن هدر به هر صفحه
+            const addHeader = (pageNumber) => {
+                doc.setFillColor(106, 17, 203);
+                doc.rect(0, 0, 297, 20, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(16);
+                doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 148, 12, { align: 'center' });
+                
+                doc.setFontSize(10);
+                doc.text('گزارش تحلیلی پیشرفت تحصیلی', 148, 18, { align: 'center' });
+                
+                // شماره صفحه
+                doc.text(`صفحه ${pageNumber}`, 285, 18, { align: 'right' });
+            };
+            
+            // تابع برای اضافه کردن فوتر به هر صفحه
+            const addFooter = () => {
+                doc.setFillColor(106, 17, 203);
+                doc.rect(0, 200, 297, 10, 'F');
+                
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(9);
+                doc.text('https://zil.ink/ehsan.afshar', 148, 205, { align: 'center' });
+                
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
+                doc.text(`تاریخ گزارش: ${dateStr}`, 12, 205, { align: 'left' });
+            };
+            
+            // صفحه اول - جلد گزارش
+            doc.addPage();
+            addHeader(1);
+            
+            // پس زمینه گرادیانت
+            const gradient = doc.createLinearGradient(0, 0, 297, 210);
+            gradient.addColorStop(0, '#6a11cb');
+            gradient.addColorStop(1, '#2575fc');
+            doc.setFillColor(gradient);
+            doc.rect(0, 20, 297, 180, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.text('گزارش تحلیلی پیشرفت تحصیلی', 148, 70, { align: 'center' });
+            
+            doc.setFontSize(18);
+            doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 148, 90, { align: 'center' });
+            
+            doc.setFontSize(16);
+            doc.text(`کد دانشجو: ${studentCode}`, 148, 120, { align: 'center' });
+            
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
-            doc.setFontSize(10);
-            doc.text(`تاریخ گزارش: ${dateStr}`, 105, 29, { align: 'center' });
+            doc.setFontSize(14);
+            doc.text(`تاریخ گزارش: ${dateStr}`, 148, 140, { align: 'center' });
             
-            // اضافه کردن کد دانشجو
-            const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
-            doc.text(`کد دانشجو: ${studentCode}`, 105, 36, { align: 'center' });
+            addFooter();
             
-            // اضافه کردن نمودارها (به صورت ساده)
-            let yPosition = 45;
+            // صفحه دوم - خلاصه عملکرد
+            doc.addPage();
+            addHeader(2);
             
-            // اضافه کردن تحلیل‌ها
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(16);
+            doc.text('خلاصه عملکرد تحصیلی', 148, 30, { align: 'center' });
+            
+            // محاسبه میانگین‌ها و جمع‌ها
+            const lastWeek = studentData[studentData.length - 1];
+            const totalWeeks = studentData.length;
+            
+            const totalSpecializedHours = studentData.reduce((sum, item) => sum + item.studyHoursSpecialized, 0);
+            const totalGeneralHours = studentData.reduce((sum, item) => sum + item.studyHoursGeneral, 0);
+            const totalSpecializedTests = studentData.reduce((sum, item) => sum + item.specializedTests, 0);
+            const totalDescriptiveQuestions = studentData.reduce((sum, item) => sum + item.descriptiveQuestions, 0);
+            const totalMarkedTests = studentData.reduce((sum, item) => sum + item.markedTests, 0);
+            const avgSatisfaction = studentData.reduce((sum, item) => sum + item.satisfaction, 0) / totalWeeks;
+            const avgAdvisorSatisfaction = studentData.reduce((sum, item) => sum + item.advisorSatisfaction, 0) / totalWeeks;
+            
+            // ایجاد باکس‌های خلاصه عملکرد
+            const boxWidth = 85;
+            const boxHeight = 35;
+            const margin = 10;
+            
+            // ردیف اول
+            let x = 15;
+            let y = 45;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
             doc.setFontSize(12);
-            doc.text('تحلیل وضعیت تحصیلی:', 14, yPosition);
-            yPosition += 7;
+            doc.text('جمع ساعات تخصصی', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalSpecializedHours.toString(), x + boxWidth/2, y + 25, { align: 'center' });
             
-            const studyAnalysis = document.getElementById('studyAnalysisText').textContent;
-            const splitStudyAnalysis = doc.splitTextToSize(studyAnalysis, 180);
+            x += boxWidth + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('جمع ساعات عمومی', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalGeneralHours.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            
+            x += boxWidth + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('جمع تست تخصصی', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalSpecializedTests.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            
+            // ردیف دوم
+            x = 15;
+            y += boxHeight + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('جمع سوال تشریحی', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalDescriptiveQuestions.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            
+            x += boxWidth + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('جمع تست مارکدار', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalMarkedTests.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            
+            x += boxWidth + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('تعداد هفته‌های ثبت شده', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.text(totalWeeks.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            
+            // ردیف سوم - رضایتمندی
+            y += boxHeight + margin;
+            x = 15;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('میانگین رضایت از عملکرد', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            
+            // ایجاد نمودار ستونی کوچک برای رضایت
+            const satisfactionWidth = 60;
+            const satisfactionX = x + (boxWidth - satisfactionWidth) / 2;
+            const satisfactionY = y + 20;
+            const maxHeight = 15;
+            
+            // پس زمینه نمودار
+            doc.setFillColor(220, 220, 220);
+            doc.rect(satisfactionX, satisfactionY, satisfactionWidth, maxHeight, 'F');
+            
+            // مقدار رضایت
+            const satisfactionHeight = (avgSatisfaction / 5) * maxHeight;
+            doc.setFillColor(106, 17, 203);
+            doc.rect(satisfactionX, satisfactionY + maxHeight - satisfactionHeight, satisfactionWidth, satisfactionHeight, 'F');
+            
+            // متن مقدار
+            doc.setTextColor(255, 255, 255);
             doc.setFontSize(10);
-            doc.text(splitStudyAnalysis, 14, yPosition);
-            yPosition += splitStudyAnalysis.length * 7 + 5;
+            doc.text(avgSatisfaction.toFixed(1), satisfactionX + satisfactionWidth/2, satisfactionY + maxHeight/2 + 2, { align: 'center' });
+            
+            x += boxWidth + margin;
+            
+            doc.setFillColor(240, 240, 240);
+            doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+            doc.setTextColor(106, 17, 203);
+            doc.setFontSize(12);
+            doc.text('میانگین رضایت از مشاور', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.setTextColor(0, 0, 0);
+            
+            // نمودار ستونی برای رضایت مشاور
+            const advisorSatisfactionX = x + (boxWidth - satisfactionWidth) / 2;
+            
+            // پس زمینه نمودار
+            doc.setFillColor(220, 220, 220);
+            doc.rect(advisorSatisfactionX, satisfactionY, satisfactionWidth, maxHeight, 'F');
+            
+            // مقدار رضایت مشاور
+            const advisorSatisfactionHeight = (avgAdvisorSatisfaction / 5) * maxHeight;
+            doc.setFillColor(37, 117, 252);
+            doc.rect(advisorSatisfactionX, satisfactionY + maxHeight - advisorSatisfactionHeight, satisfactionWidth, advisorSatisfactionHeight, 'F');
+            
+            // متن مقدار
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(10);
+            doc.text(avgAdvisorSatisfaction.toFixed(1), advisorSatisfactionX + satisfactionWidth/2, satisfactionY + maxHeight/2 + 2, { align: 'center' });
+            
+            // شعر الهام بخش
+            const poems = [
+                "راهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که تا منزل خود پیوسته رود",
+                "چون توانی کار بزرگ کن که در این عمر / هیچ کار بزرگ، آسان به دست ناید",
+                "بار دیگر از نوای بلبلان باغ ارم / یاد می‌آید که فصل گلستان آمد باز",
+                "هر که ناموخت از گذشت روزگار / هیچ ناموزد ز هیچ آموزگار",
+                "نابرده رنج گنج میسر نمی‌شود / مزد آن گرفت جان برادر که کار کرد"
+            ];
+            
+            const randomPoem = poems[Math.floor(Math.random() * poems.length)];
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(11);
+            doc.text(randomPoem, 148, 170, { align: 'center' });
+            
+            doc.setFontSize(9);
+            doc.text('«سخن بزرگان»', 148, 180, { align: 'center' });
+            
+            addFooter();
+            
+            // صفحه سوم - تحلیل‌ها
+            doc.addPage();
+            addHeader(3);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(16);
+            doc.text('تحلیل و بررسی عملکرد', 148, 30, { align: 'center' });
+            
+            // تحلیل ساعات مطالعه
+            doc.setFontSize(14);
+            doc.setTextColor(106, 17, 203);
+            doc.text('تحلیل ساعات مطالعه:', 20, 45);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            let studyAnalysis = '';
+            if (studentData.length > 1) {
+                const prevWeek = studentData[studentData.length - 2];
+                
+                if (lastWeek.studyHoursSpecialized > prevWeek.studyHoursSpecialized) {
+                    studyAnalysis += '• روند شما در مطالعه دروس تخصصی صعودی است. این پیشرفت عالی است، ادامه دهید!\n';
+                } else if (lastWeek.studyHoursSpecialized < prevWeek.studyHoursSpecialized) {
+                    studyAnalysis += '• میزان مطالعه دروس تخصصی نزولی شده است. برای بازگشت به روند قبلی تلاش بیشتری کنید.\n';
+                } else {
+                    studyAnalysis += '• میزان مطالعه دروس تخصصی ثابت مانده است. سعی کنید آن را افزایش دهید.\n';
+                }
+                
+                if (lastWeek.studyHoursGeneral > prevWeek.studyHoursGeneral) {
+                    studyAnalysis += '• روند شما در مطالعه دروس عمومی صعودی است. این تعادل خوبی در مطالعه ایجاد می‌کند.\n';
+                } else if (lastWeek.studyHoursGeneral < prevWeek.studyHoursGeneral) {
+                    studyAnalysis += '• میزان مطالعه دروس عمومی نزولی شده است. به یاد داشته باشید که دروس عمومی نیز اهمیت دارند.\n';
+                } else {
+                    studyAnalysis += '• میزان مطالعه دروس عمومی ثابت مانده است. سعی کنید آن را بهبود بخشید.\n';
+                }
+            }
+            
+            const totalStudyHours = lastWeek.studyHoursSpecialized + lastWeek.studyHoursGeneral;
+            if (totalStudyHours < 20) {
+                studyAnalysis += '• میزان کل ساعات مطالعه شما پایین است. سعی کنید زمان بیشتری به مطالعه اختصاص دهید.\n';
+            } else if (totalStudyHours > 40) {
+                studyAnalysis += '• میزان مطالعه شما بسیار بالا است. مراقب فرسودگی و خستگی باشید.\n';
+            } else {
+                studyAnalysis += '• میزان کل ساعات مطالعه شما در محدوده مطلوب قرار دارد.\n';
+            }
+            
+            const splitStudyAnalysis = doc.splitTextToSize(studyAnalysis, 250);
+            doc.text(splitStudyAnalysis, 20, 55);
+            
+            // تحلیل تست‌زنی
+            doc.setFontSize(14);
+            doc.setTextColor(106, 17, 203);
+            doc.text('تحلیل تست‌زنی:', 20, 95);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            let testAnalysis = '';
+            if (studentData.length > 1) {
+                const prevWeek = studentData[studentData.length - 2];
+                
+                if (lastWeek.specializedTests > prevWeek.specializedTests) {
+                    testAnalysis += '• روند شما در تست‌زنی تخصصی صعودی است. این نشان‌دهنده افزایش تسلط شماست.\n';
+                } else if (lastWeek.specializedTests < prevWeek.specializedTests) {
+                    testAnalysis += '• میزان تست‌زنی تخصصی نزولی شده است. سعی کنید این روند را معکوس کنید.\n';
+                } else {
+                    testAnalysis += '• میزان تست‌زنی تخصصی ثابت مانده است. برای پیشرفت باید آن را افزایش دهید.\n';
+                }
+                
+                if (lastWeek.markedTests > prevWeek.markedTests) {
+                    testAnalysis += '• روند شما در تست‌زنی مارکدار صعودی است. این نشان‌دهنده افزایش تمرکز شما بر نقاط ضعف است.\n';
+                } else if (lastWeek.markedTests < prevWeek.markedTests) {
+                    testAnalysis += '• میزان تست‌زنی مارکدار نزولی شده است. تحلیل تست‌های قبلی را فراموش نکنید.\n';
+                } else {
+                    testAnalysis += '• میزان تست‌زنی مارکدار ثابت مانده است. سعی کنید آن را بهبود بخشید.\n';
+                }
+            }
+            
+            if (lastWeek.descriptiveQuestions < 5) {
+                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما پایین است. این بخش را تقویت کنید.\n';
+            } else if (lastWeek.descriptiveQuestions > 15) {
+                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما عالی است. این روند را حفظ کنید.\n';
+            } else {
+                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما در محدوده مطلوب قرار دارد.\n';
+            }
+            
+            const splitTestAnalysis = doc.splitTextToSize(testAnalysis, 250);
+            doc.text(splitTestAnalysis, 20, 105);
+            
+            // تحلیل رضایتمندی
+            doc.setFontSize(14);
+            doc.setTextColor(106, 17, 203);
+            doc.text('تحلیل رضایتمندی:', 20, 145);
+            
+            doc.setFontSize(11);
+            doc.setTextColor(0, 0, 0);
+            
+            let satisfactionAnalysis = '';
+            if (lastWeek.satisfaction < 3) {
+                satisfactionAnalysis += '• رضایت شما از عملکردتان پایین است. شاید نیاز به بازنگری در برنامه‌ریزی دارید.\n';
+            } else if (lastWeek.satisfaction > 4) {
+                satisfactionAnalysis += '• رضایت شما از عملکردتان عالی است. این نگرش مثبت به موفقیت شما کمک می‌کند.\n';
+            } else {
+                satisfactionAnalysis += '• رضایت شما از عملکردتان در سطح متوسط است. برای بهبود آن برنامه‌ریزی کنید.\n';
+            }
+            
+            if (lastWeek.advisorSatisfaction < 3) {
+                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما پایین است. با مشاور خود برای بهبود برنامه صحبت کنید.\n';
+            } else if (lastWeek.advisorSatisfaction > 4) {
+                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما عالی است. این نشان‌دهنده هماهنگی خوب شما با برنامه است.\n';
+            } else {
+                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما در سطح متوسط است. برای بهبود آن تلاش کنید.\n';
+            }
+            
+            satisfactionAnalysis += '• به یاد داشته باشید که رضایتمندی نشان‌دهنده کیفیت مطالعه است، نه فقط کمیت آن.';
+            
+            const splitSatisfactionAnalysis = doc.splitTextToSize(satisfactionAnalysis, 250);
+            doc.text(splitSatisfactionAnalysis, 20, 155);
+            
+            // کادر توصیه‌های ویژه
+            doc.setFillColor(240, 245, 255);
+            doc.roundedRect(20, 175, 257, 20, 3, 3, 'F');
+            doc.setDrawColor(106, 17, 203);
+            doc.roundedRect(20, 175, 257, 20, 3, 3);
             
             doc.setFontSize(12);
-            doc.text('تحلیل وضعیت تست‌زنی:', 14, yPosition);
-            yPosition += 7;
+            doc.setTextColor(106, 17, 203);
+            doc.text('توصیه‌های ویژه برای هفته آینده:', 148, 185, { align: 'center' });
             
-            const testAnalysis = document.getElementById('testAnalysisText').textContent;
-            const splitTestAnalysis = doc.splitTextToSize(testAnalysis, 180);
-            doc.setFontSize(10);
-            doc.text(splitTestAnalysis, 14, yPosition);
-            yPosition += splitTestAnalysis.length * 7 + 5;
-            
-            doc.setFontSize(12);
-            doc.text('تحلیل وضعیت رضایتمندی:', 14, yPosition);
-            yPosition += 7;
-            
-            const satisfactionAnalysis = document.getElementById('satisfactionAnalysisText').textContent;
-            const splitSatisfactionAnalysis = doc.splitTextToSize(satisfactionAnalysis, 180);
-            doc.setFontSize(10);
-            doc.text(splitSatisfactionAnalysis, 14, yPosition);
+            addFooter();
             
             // ذخیره فایل PDF
-            const dateStrForFile = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}-${now.getMinutes().toString().padStart(2, '0')}`;
-            doc.save(`مطالعات_${studentCode}_${dateStrForFile}.pdf`);
+            doc.save(`گزارش_تحصیلی_${studentCode}.pdf`);
         }
         
         // به روز رسانی نمودارهای اصلی
@@ -1241,4 +1718,3 @@ const fileName = `مطالعات_${studentCode}_${dateStr}.xlsx`;
     </script>
 </body>
 </html>
-
