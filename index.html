@@ -332,11 +332,11 @@
                                 <input type="number" class="form-control" id="studyHoursGeneral" placeholder="تعداد ساعت">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد سوال تشریحی دروس عمومی в هفته</label>
+                                <label class="form-label">تعداد سوال تشریحی دروس عمومی در هفته</label>
                                 <input type="number" class="form-control" id="descriptiveQuestions" placeholder="تعداد سوال">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد تست مارکدار شده в هفته</label>
+                                <label class="form-label">تعداد تست مارکدار شده در هفته</label>
                                 <input type="number" class="form-control" id="markedTests" placeholder="تعداد تست">
                             </div>
                             
@@ -381,7 +381,7 @@
                         <div class="card-header">خروجی و گزارش‌ها</div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="loadStudentCode" class="form-label">کد دانشجو برای گزارش</label>
+                                <label for="loadStudentCode" class="form-label">کد مراجع برای گزارش</label>
                                 <input type="text" class="form-control" id="loadStudentCode" placeholder="مثلاً: ST1001">
                             </div>
                             
@@ -1358,7 +1358,7 @@
             if (lastWeek.studyHoursSpecialized > 0) {
                 const testsPerHour = lastWeek.specializedTests / lastWeek.studyHoursSpecialized;
                 if (testsPerHour < 5) {
-                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه پایین است. سعی کنید в زمان مطالعه تست بیشتری بزنید.<br>`;
+                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه پایین است. سعی کنید در زمان مطالعه تست بیشتری بزنید.<br>`;
                 } else if (testsPerHour > 15) {
                     testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه بسیار بالا است. مطمئن شوید تست‌ها را با دقت می‌زنید.<br>`;
                 }
