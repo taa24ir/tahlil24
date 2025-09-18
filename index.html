@@ -97,7 +97,16 @@
             font-weight: 500;
         }
         
-        .btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+        .btn-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .btn-primary:hover, .btn-success:hover, .btn-danger:hover, .btn-warning:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
@@ -130,14 +139,6 @@
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: 500;
-        }
-        
-        .github-info {
-            background-color: #f5f5f5;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.9rem;
         }
         
         .instructions {
@@ -331,12 +332,18 @@
                                 <input type="number" class="form-control" id="studyHoursGeneral" placeholder="تعداد ساعت">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد سوال تشریحی دروس عمومی در هفته</label>
+                                <label class="form-label">تعداد سوال تشریحی دروس عمومی в هفته</label>
                                 <input type="number" class="form-control" id="descriptiveQuestions" placeholder="تعداد سوال">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">تعداد تست مارکدار شده در هفته</label>
+                                <label class="form-label">تعداد تست مارکدار شده в هفته</label>
                                 <input type="number" class="form-control" id="markedTests" placeholder="تعداد تست">
+                            </div>
+                            
+                            <!-- فیلد جدید: تراز آزمون آزمایشی -->
+                            <div class="mb-3">
+                                <label class="form-label">تراز آزمون آزمایشی</label>
+                                <input type="number" class="form-control" id="examBalance" placeholder="تراز آزمون">
                             </div>
                             
                             <div class="mb-3">
@@ -362,6 +369,7 @@
                             </div>
                             
                             <button class="btn btn-primary w-100 mb-2" onclick="addData()">افزودن داده</button>
+                            <button class="btn btn-warning w-100 mb-2" onclick="clearForm()">پاک کردن فرم</button>
                             <button class="btn btn-outline-primary w-100" onclick="loadExcelFile()">ورودی از اکسل</button>
                             <input type="file" id="excelInput" accept=".xlsx, .xls" style="display: none;">
                         </div>
@@ -373,7 +381,7 @@
                         <div class="card-header">خروجی و گزارش‌ها</div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label for="loadStudentCode" class="form-label">کد مراجع برای گزارش</label>
+                                <label for="loadStudentCode" class="form-label">کد دانشجو برای گزارش</label>
                                 <input type="text" class="form-control" id="loadStudentCode" placeholder="مثلاً: ST1001">
                             </div>
                             
@@ -381,10 +389,11 @@
                                 <button class="btn btn-success" onclick="generateReport()">گزارش گرافیکی</button>
                                 <button class="btn btn-danger" onclick="exportToExcel()">خروجی اکسل</button>
                                 <button class="btn btn-info text-white" onclick="exportToPDF()">خروجی PDF</button>
+                                <button class="btn btn-warning" onclick="clearAllData()">پاک کردن همه داده‌ها</button>
                             </div>
                             
                             <div class="student-id-badge d-inline-block my-3">
-                                مراجع انتخاب شده: <span id="selectedStudent">ST1001</span>
+                                دانشجوی انتخاب شده: <span id="selectedStudent">ST1001</span>
                             </div>
                         </div>
                     </div>
@@ -446,6 +455,7 @@
                                             <th>ساعات عمومی</th>
                                             <th>سوال تشریحی</th>
                                             <th>تست مارکدار</th>
+                                            <th>تراز آزمون</th>
                                             <th>رضایت عملکرد</th>
                                             <th>رضایت مشاور</th>
                                             <th>عملیات</th>
@@ -487,6 +497,11 @@
                                         <canvas id="advisorSatisfactionChart"></canvas>
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="chart-container">
+                                        <canvas id="examBalanceChart"></canvas>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -504,7 +519,7 @@
         <div class="report-header">
             <h1>آکادمی تحصیلی دکتر احسان افشارمنش</h1>
             <p>گزارش تحلیلی پیشرفت تحصیلی</p>
-            <p>کد مراجع: <span id="reportStudentCode"></span></p>
+            <p>کد دانشجو: <span id="reportStudentCode"></span></p>
             <a href="https://zil.ink/ehsan.afshar" target="_blank">https://zil.ink/ehsan.afshar</a>
         </div>
         
@@ -570,6 +585,9 @@
             <div class="report-chart">
                 <canvas id="reportAdvisorSatisfactionChart"></canvas>
             </div>
+            <div class="report-chart">
+                <canvas id="reportExamBalanceChart"></canvas>
+            </div>
         </div>
         
         <div class="chart-analysis">
@@ -585,6 +603,11 @@
         <div class="chart-analysis">
             <h4>تحلیل وضعیت رضایتمندی</h4>
             <p id="satisfactionAnalysisText">در حال تحلیل داده‌ها...</p>
+        </div>
+        
+        <div class="chart-analysis">
+            <h4>تحلیل تراز آزمون</h4>
+            <p id="examBalanceAnalysisText">در حال تحلیل داده‌ها...</p>
         </div>
         
         <div class="text-center mt-4">
@@ -637,6 +660,30 @@
             updateSummaryBoxes();
         }
         
+        // پاک کردن فرم
+        function clearForm() {
+            document.getElementById('weekNumber').value = '';
+            document.getElementById('studyHoursSpecialized').value = '';
+            document.getElementById('specializedTests').value = '';
+            document.getElementById('studyHoursGeneral').value = '';
+            document.getElementById('descriptiveQuestions').value = '';
+            document.getElementById('markedTests').value = '';
+            document.getElementById('examBalance').value = '';
+            
+            alert('فرم با موفقیت پاک شد!');
+        }
+        
+        // پاک کردن همه داده‌ها
+        function clearAllData() {
+            if (confirm('آیا از پاک کردن تمام داده‌ها مطمئن هستید؟ این عمل قابل بازگشت نیست.')) {
+                studyData = [];
+                saveData();
+                updateDataTable();
+                updateCharts();
+                alert('تمامی داده‌ها با موفقیت پاک شدند!');
+            }
+        }
+        
         // به روز رسانی باکس‌های خلاصه عملکرد
         function updateSummaryBoxes() {
             const studentCode = document.getElementById('loadStudentCode').value || 'ST1001';
@@ -672,6 +719,7 @@
             const studyHoursGeneral = parseInt(document.getElementById('studyHoursGeneral').value) || 0;
             const descriptiveQuestions = parseInt(document.getElementById('descriptiveQuestions').value) || 0;
             const markedTests = parseInt(document.getElementById('markedTests').value) || 0;
+            const examBalance = parseInt(document.getElementById('examBalance').value) || 0;
             
             // دریافت رضایت عملکرد
             const satisfaction = document.querySelector('input[name="satisfaction"]:checked');
@@ -681,7 +729,7 @@
             const advisorSatisfaction = document.querySelector('input[name="advisorSatisfaction"]:checked');
             const advisorSatisfactionValue = advisorSatisfaction ? parseInt(advisorSatisfaction.value) : 3;
             
-            // بررسی آیا داده برای این هفته و این مراجع قبلاً ثبت شده است
+            // بررسی آیا داده برای این هفته و این دانشجو قبلاً ثبت شده است
             const existingIndex = studyData.findIndex(item => 
                 item.studentCode === studentCode && item.weekNumber === weekNumber
             );
@@ -696,6 +744,7 @@
                     studyHoursGeneral,
                     descriptiveQuestions,
                     markedTests,
+                    examBalance,
                     satisfaction: satisfactionValue,
                     advisorSatisfaction: advisorSatisfactionValue
                 };
@@ -709,6 +758,7 @@
                     studyHoursGeneral,
                     descriptiveQuestions,
                     markedTests,
+                    examBalance,
                     satisfaction: satisfactionValue,
                     advisorSatisfaction: advisorSatisfactionValue
                 });
@@ -718,13 +768,14 @@
             updateDataTable();
             updateCharts();
             
-            // ریست کردن فرم
+            // ریست کردن فرم (به جز امتیاز عملکرد)
             document.getElementById('weekNumber').value = '';
             document.getElementById('studyHoursSpecialized').value = '';
             document.getElementById('specializedTests').value = '';
             document.getElementById('studyHoursGeneral').value = '';
             document.getElementById('descriptiveQuestions').value = '';
             document.getElementById('markedTests').value = '';
+            document.getElementById('examBalance').value = '';
             
             alert('داده با موفقیت ثبت شد!');
         }
@@ -744,6 +795,7 @@
                     <td>${data.studyHoursGeneral}</td>
                     <td>${data.descriptiveQuestions}</td>
                     <td>${data.markedTests}</td>
+                    <td>${data.examBalance}</td>
                     <td>${data.satisfaction}</td>
                     <td>${data.advisorSatisfaction}</td>
                     <td>
@@ -804,6 +856,7 @@
                         studyHoursGeneral: parseInt(row['ساعات عمومی']) || 0,
                         descriptiveQuestions: parseInt(row['سوال تشریحی']) || 0,
                         markedTests: parseInt(row['تست مارکدار']) || 0,
+                        examBalance: parseInt(row['تراز آزمون']) || 0,
                         satisfaction: parseInt(row['رضایت عملکرد']) || 3,
                         advisorSatisfaction: parseInt(row['رضایت مشاور']) || 3
                     }));
@@ -852,6 +905,7 @@
                 'ساعات عمومی': item.studyHoursGeneral,
                 'سوال تشریحی': item.descriptiveQuestions,
                 'تست مارکدار': item.markedTests,
+                'تراز آزمون': item.examBalance,
                 'رضایت عملکرد': item.satisfaction,
                 'رضایت مشاور': item.advisorSatisfaction
             })));
@@ -880,11 +934,11 @@
             document.getElementById('selectedStudent').textContent = studentCode;
             document.getElementById('reportStudentCode').textContent = studentCode;
             
-            // فیلتر داده‌های مراجع انتخاب شده
+            // فیلتر داده‌های دانشجوی انتخاب شده
             const studentData = studyData.filter(item => item.studentCode === studentCode);
             
             if (studentData.length === 0) {
-                alert('داده‌ای برای مراجع انتخاب شده یافت نشد.');
+                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
                 return;
             }
             
@@ -936,6 +990,7 @@
             const markedTests = studentData.map(item => item.markedTests);
             const satisfaction = studentData.map(item => item.satisfaction);
             const advisorSatisfaction = studentData.map(item => item.advisorSatisfaction);
+            const examBalance = studentData.map(item => item.examBalance);
             
             // نمودار ساعات مطالعه
             const studyHoursCtx = document.getElementById('reportStudyHoursChart').getContext('2d');
@@ -1060,8 +1115,8 @@
                             }
                         }
                     }
-                }
-            });
+                    }
+                });
             
             // نمودار رضایت از عملکرد
             const satisfactionCtx = document.getElementById('reportSatisfactionChart').getContext('2d');
@@ -1105,7 +1160,7 @@
                         },
                         y: {
                             display: true,
-                                title: {
+                            title: {
                                 display: true,
                                 text: 'میزان رضایت'
                             },
@@ -1116,7 +1171,7 @@
                 }
             });
             
-            // نمودار رضایت از مشاور
+            // نمودار رضایت از مشاور (با افزایش حداکثر مقدار به 10)
             const advisorSatisfactionCtx = document.getElementById('reportAdvisorSatisfactionChart').getContext('2d');
             if (window.advisorSatisfactionChartInstance) {
                 window.advisorSatisfactionChartInstance.destroy();
@@ -1163,7 +1218,58 @@
                                 text: 'میزان رضایت'
                             },
                             min: 1,
-                            max: 5
+                            max: 10 // افزایش حداکثر مقدار به 10
+                        }
+                    }
+                }
+            });
+            
+            // نمودار تراز آزمون
+            const examBalanceCtx = document.getElementById('reportExamBalanceChart').getContext('2d');
+            if (window.examBalanceChartInstance) {
+                window.examBalanceChartInstance.destroy();
+            }
+            window.examBalanceChartInstance = new Chart(examBalanceCtx, {
+                type: 'line',
+                data: {
+                    labels: weeks,
+                    datasets: [
+                        {
+                            label: 'تراز آزمون',
+                            data: examBalance,
+                            borderColor: 'rgb(156, 39, 176)',
+                            backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'تراز آزمون آزمایشی'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'هفته برنامه'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'تراز آزمون'
+                            }
                         }
                     }
                 }
@@ -1252,7 +1358,7 @@
             if (lastWeek.studyHoursSpecialized > 0) {
                 const testsPerHour = lastWeek.specializedTests / lastWeek.studyHoursSpecialized;
                 if (testsPerHour < 5) {
-                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه پایین است. سعی کنید در زمان مطالعه تست بیشتری بزنید.<br>`;
+                    testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه پایین است. سعی کنید в زمان مطالعه تست بیشتری بزنید.<br>`;
                 } else if (testsPerHour > 15) {
                     testAnalysis += `⚠ نسبت تعداد تست به ساعات مطالعه بسیار بالا است. مطمئن شوید تست‌ها را با دقت می‌زنید.<br>`;
                 }
@@ -1295,6 +1401,31 @@
             }
             
             document.getElementById('satisfactionAnalysisText').innerHTML = satisfactionAnalysis;
+            
+            // تحلیل تراز آزمون
+            let examBalanceAnalysis = '';
+            
+            if (prevWeek) {
+                if (lastWeek.examBalance > prevWeek.examBalance) {
+                    examBalanceAnalysis += `📈 روند تراز آزمون شما صعودی است. این نشان‌دهنده پیشرفت تحصیلی شما است.<br>`;
+                } else if (lastWeek.examBalance < prevWeek.examBalance) {
+                    examBalanceAnalysis += `📉 تراز آزمون شما نزولی شده است. نیاز به بررسی و تحلیل بیشتر دارد.<br>`;
+                } else {
+                    examBalanceAnalysis += `➡ تراز آزمون شما ثابت مانده است. برای بهبود آن برنامه‌ریزی کنید.<br>`;
+                }
+            }
+            
+            if (lastWeek.examBalance > 0) {
+                if (lastWeek.examBalance < 5000) {
+                    examBalanceAnalysis += `⚠ تراز آزمون شما پایین است. نیاز به تلاش بیشتر و بررسی نقاط ضعف دارید.<br>`;
+                } else if (lastWeek.examBalance > 7000) {
+                    examBalanceAnalysis += `✅ تراز آزمون شما عالی است. این روند را حفظ کنید.<br>`;
+                } else {
+                    examBalanceAnalysis += `🔶 تراز آزمون شما در سطح متوسط است. برای رسیدن به سطح عالی برنامه‌ریزی کنید.<br>`;
+                }
+            }
+            
+            document.getElementById('examBalanceAnalysisText').innerHTML = examBalanceAnalysis;
         }
         
         // خروجی به PDF با طراحی زیبا و حرفه‌ای
@@ -1309,13 +1440,11 @@
             const studentData = studyData.filter(item => item.studentCode === studentCode);
             
             if (studentData.length === 0) {
-                alert('داده‌ای برای مراجع انتخاب شده یافت نشد.');
+                alert('داده‌ای برای دانشجوی انتخاب شده یافت نشد.');
                 return;
             }
 
-            // مرتب سازی داده‌ها بر اساس شماره هفته
-            studentData.sort((a, b) => a.weekNumber - b.weekNumber);
-            
+            // استفاده از jsPDF از طریق全局对象
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({
                 orientation: 'landscape',
@@ -1323,8 +1452,8 @@
                 format: 'a4'
             });
             
-            // اضافه کردن فونت فارسی (با فرض استفاده از فونت استاندارد)
-            doc.setFont('helvetica', 'normal');
+            // اضافه کردن فونت
+            doc.setFont('Helvetica', 'normal');
             
             // تابع برای اضافه کردن هدر به هر صفحه
             const addHeader = (pageNumber) => {
@@ -1361,10 +1490,7 @@
             addHeader(1);
             
             // پس زمینه گرادیانت
-            const gradient = doc.createLinearGradient(0, 0, 297, 210);
-            gradient.addColorStop(0, '#6a11cb');
-            gradient.addColorStop(1, '#2575fc');
-            doc.setFillColor(gradient);
+            doc.setFillColor(106, 17, 203);
             doc.rect(0, 20, 297, 180, 'F');
             
             doc.setTextColor(255, 255, 255);
@@ -1375,7 +1501,7 @@
             doc.text('آکادمی تحصیلی دکتر احسان افشارمنش', 148, 90, { align: 'center' });
             
             doc.setFontSize(16);
-            doc.text(`کد مراجع: ${studentCode}`, 148, 120, { align: 'center' });
+            doc.text(`کد دانشجو: ${studentCode}`, 148, 120, { align: 'center' });
             
             const now = new Date();
             const dateStr = `${now.getFullYear()}/${(now.getMonth()+1).toString().padStart(2, '0')}/${now.getDate().toString().padStart(2, '0')}`;
@@ -1401,6 +1527,8 @@
             const totalSpecializedTests = studentData.reduce((sum, item) => sum + item.specializedTests, 0);
             const totalDescriptiveQuestions = studentData.reduce((sum, item) => sum + item.descriptiveQuestions, 0);
             const totalMarkedTests = studentData.reduce((sum, item) => sum + item.markedTests, 0);
+            const totalExamBalance = studentData.reduce((sum, item) => sum + item.examBalance, 0);
+            const avgExamBalance = totalExamBalance / totalWeeks;
             const avgSatisfaction = studentData.reduce((sum, item) => sum + item.satisfaction, 0) / totalWeeks;
             const avgAdvisorSatisfaction = studentData.reduce((sum, item) => sum + item.advisorSatisfaction, 0) / totalWeeks;
             
@@ -1474,10 +1602,10 @@
             doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
             doc.setTextColor(106, 17, 203);
             doc.setFontSize(12);
-            doc.text('تعداد هفته‌های ثبت شده', x + boxWidth/2, y + 10, { align: 'center' });
+            doc.text('میانگین تراز آزمون', x + boxWidth/2, y + 10, { align: 'center' });
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(14);
-            doc.text(totalWeeks.toString(), x + boxWidth/2, y + 25, { align: 'center' });
+            doc.text(avgExamBalance.toFixed(0), x + boxWidth/2, y + 25, { align: 'center' });
             
             // ردیف سوم - رضایتمندی
             y += boxHeight + margin;
@@ -1557,137 +1685,6 @@
             
             addFooter();
             
-            // صفحه سوم - تحلیل‌ها
-            doc.addPage();
-            addHeader(3);
-            
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(16);
-            doc.text('تحلیل و بررسی عملکرد', 148, 30, { align: 'center' });
-            
-            // تحلیل ساعات مطالعه
-            doc.setFontSize(14);
-            doc.setTextColor(106, 17, 203);
-            doc.text('تحلیل ساعات مطالعه:', 20, 45);
-            
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-            
-            let studyAnalysis = '';
-            if (studentData.length > 1) {
-                const prevWeek = studentData[studentData.length - 2];
-                
-                if (lastWeek.studyHoursSpecialized > prevWeek.studyHoursSpecialized) {
-                    studyAnalysis += '• روند شما در مطالعه دروس تخصصی صعودی است. این پیشرفت عالی است، ادامه دهید!\n';
-                } else if (lastWeek.studyHoursSpecialized < prevWeek.studyHoursSpecialized) {
-                    studyAnalysis += '• میزان مطالعه دروس تخصصی نزولی شده است. برای بازگشت به روند قبلی تلاش بیشتری کنید.\n';
-                } else {
-                    studyAnalysis += '• میزان مطالعه دروس تخصصی ثابت مانده است. سعی کنید آن را افزایش دهید.\n';
-                }
-                
-                if (lastWeek.studyHoursGeneral > prevWeek.studyHoursGeneral) {
-                    studyAnalysis += '• روند شما در مطالعه دروس عمومی صعودی است. این تعادل خوبی در مطالعه ایجاد می‌کند.\n';
-                } else if (lastWeek.studyHoursGeneral < prevWeek.studyHoursGeneral) {
-                    studyAnalysis += '• میزان مطالعه دروس عمومی نزولی شده است. به یاد داشته باشید که دروس عمومی نیز اهمیت دارند.\n';
-                } else {
-                    studyAnalysis += '• میزان مطالعه دروس عمومی ثابت مانده است. سعی کنید آن را بهبود بخشید.\n';
-                }
-            }
-            
-            const totalStudyHours = lastWeek.studyHoursSpecialized + lastWeek.studyHoursGeneral;
-            if (totalStudyHours < 20) {
-                studyAnalysis += '• میزان کل ساعات مطالعه شما پایین است. سعی کنید زمان بیشتری به مطالعه اختصاص دهید.\n';
-            } else if (totalStudyHours > 40) {
-                studyAnalysis += '• میزان مطالعه شما بسیار بالا است. مراقب فرسودگی و خستگی باشید.\n';
-            } else {
-                studyAnalysis += '• میزان کل ساعات مطالعه شما در محدوده مطلوب قرار دارد.\n';
-            }
-            
-            const splitStudyAnalysis = doc.splitTextToSize(studyAnalysis, 250);
-            doc.text(splitStudyAnalysis, 20, 55);
-            
-            // تحلیل تست‌زنی
-            doc.setFontSize(14);
-            doc.setTextColor(106, 17, 203);
-            doc.text('تحلیل تست‌زنی:', 20, 95);
-            
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-            
-            let testAnalysis = '';
-            if (studentData.length > 1) {
-                const prevWeek = studentData[studentData.length - 2];
-                
-                if (lastWeek.specializedTests > prevWeek.specializedTests) {
-                    testAnalysis += '• روند شما در تست‌زنی تخصصی صعودی است. این نشان‌دهنده افزایش تسلط شماست.\n';
-                } else if (lastWeek.specializedTests < prevWeek.specializedTests) {
-                    testAnalysis += '• میزان تست‌زنی تخصصی نزولی شده است. سعی کنید این روند را معکوس کنید.\n';
-                } else {
-                    testAnalysis += '• میزان تست‌زنی تخصصی ثابت مانده است. برای پیشرفت باید آن را افزایش دهید.\n';
-                }
-                
-                if (lastWeek.markedTests > prevWeek.markedTests) {
-                    testAnalysis += '• روند شما در تست‌زنی مارکدار صعودی است. این نشان‌دهنده افزایش تمرکز شما بر نقاط ضعف است.\n';
-                } else if (lastWeek.markedTests < prevWeek.markedTests) {
-                    testAnalysis += '• میزان تست‌زنی مارکدار نزولی شده است. تحلیل تست‌های قبلی را فراموش نکنید.\n';
-                } else {
-                    testAnalysis += '• میزان تست‌زنی مارکدار ثابت مانده است. سعی کنید آن را بهبود بخشید.\n';
-                }
-            }
-            
-            if (lastWeek.descriptiveQuestions < 5) {
-                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما پایین است. این بخش را تقویت کنید.\n';
-            } else if (lastWeek.descriptiveQuestions > 15) {
-                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما عالی است. این روند را حفظ کنید.\n';
-            } else {
-                testAnalysis += '• میزان پاسخگویی به سوالات تشریحی شما در محدوده مطلوب قرار دارد.\n';
-            }
-            
-            const splitTestAnalysis = doc.splitTextToSize(testAnalysis, 250);
-            doc.text(splitTestAnalysis, 20, 105);
-            
-            // تحلیل رضایتمندی
-            doc.setFontSize(14);
-            doc.setTextColor(106, 17, 203);
-            doc.text('تحلیل رضایتمندی:', 20, 145);
-            
-            doc.setFontSize(11);
-            doc.setTextColor(0, 0, 0);
-            
-            let satisfactionAnalysis = '';
-            if (lastWeek.satisfaction < 3) {
-                satisfactionAnalysis += '• رضایت شما از عملکردتان پایین است. شاید نیاز به بازنگری در برنامه‌ریزی دارید.\n';
-            } else if (lastWeek.satisfaction > 4) {
-                satisfactionAnalysis += '• رضایت شما از عملکردتان عالی است. این نگرش مثبت به موفقیت شما کمک می‌کند.\n';
-            } else {
-                satisfactionAnalysis += '• رضایت شما از عملکردتان در سطح متوسط است. برای بهبود آن برنامه‌ریزی کنید.\n';
-            }
-            
-            if (lastWeek.advisorSatisfaction < 3) {
-                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما پایین است. با مشاور خود برای بهبود برنامه صحبت کنید.\n';
-            } else if (lastWeek.advisorSatisfaction > 4) {
-                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما عالی است. این نشان‌دهنده هماهنگی خوب شما با برنامه است.\n';
-            } else {
-                satisfactionAnalysis += '• رضایت مشاور از عملکرد شما در سطح متوسط است. برای بهبود آن تلاش کنید.\n';
-            }
-            
-            satisfactionAnalysis += '• به یاد داشته باشید که رضایتمندی نشان‌دهنده کیفیت مطالعه است، نه فقط کمیت آن.';
-            
-            const splitSatisfactionAnalysis = doc.splitTextToSize(satisfactionAnalysis, 250);
-            doc.text(splitSatisfactionAnalysis, 20, 155);
-            
-            // کادر توصیه‌های ویژه
-            doc.setFillColor(240, 245, 255);
-            doc.roundedRect(20, 175, 257, 20, 3, 3, 'F');
-            doc.setDrawColor(106, 17, 203);
-            doc.roundedRect(20, 175, 257, 20, 3, 3);
-            
-            doc.setFontSize(12);
-            doc.setTextColor(106, 17, 203);
-            doc.text('توصیه‌های ویژه برای هفته آینده:', 148, 185, { align: 'center' });
-            
-            addFooter();
-            
             // ذخیره فایل PDF
             doc.save(`گزارش_تحصیلی_${studentCode}.pdf`);
         }
@@ -1705,16 +1702,10 @@
             
             // بارگذاری یک شعر الهام بخش
             const poems = [
-                "رهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که آهسته خود پیوسته رود",
+                "راهرو آن نیست که گه تند و گهی خسته رود / راهرو آن است که تا منزل خود پیوسته رود",
                 "چون توانی کار بزرگ کن که در این عمر / هیچ کار بزرگ، آسان به دست ناید",
-                 "دور گردون گر دو روزی بر مراد ما نرفت / دائما یکسان نباشد حال دوران، غم مخور",
-                 "سعدیا دی رفت و فردا همچنان موجود نیست / در میان این و آن، فرصت شمار امروز را",
                 "بار دیگر از نوای بلبلان باغ ارم / یاد می‌آید که فصل گلستان آمد باز",
-                "در پیله‌ترین حالت دنیا / آن شاپرک امید شما باش",
-                 "پرواز بـه بال نیست بـه باوره",
                 "هر که ناموخت از گذشت روزگار / هیچ ناموزد ز هیچ آموزگار",
-                "تا رنج تحمل نکنی گنج نبینی / تا شب نرود صبح پدیدار نباشد",
-                 "هیچوقت دست نکش ، بهترین چیزا زمان میبرن /  𝑵𝒆𝒗𝒆𝒓 𝒈𝒊𝒗𝒆 𝒖𝒑, 𝒈𝒓𝒆𝒂𝒕 𝒕𝒉𝒊𝒏𝒈𝒔 𝒕𝒂𝒌𝒆 𝒕𝒊𝒎𝒆️",
                 "نابرده رنج گنج میسر نمی‌شود / مزد آن گرفت جان برادر که کار کرد"
             ];
             
@@ -1724,4 +1715,3 @@
     </script>
 </body>
 </html>
-
